@@ -1,0 +1,62 @@
+{
+  "2b2c6.svg": {
+    "screen": "B08",
+    "variable": "imgFrame"
+  },
+  "cd8d8.svg": {
+    "screen": "B08",
+    "variable": "imgFrame1"
+  },
+  "38188.svg": {
+    "screen": "B08",
+    "variable": "imgFrame2"
+  },
+  "a7d98.svg": {
+    "screen": "B08",
+    "variable": "imgFrame3"
+  },
+  "18cff.svg": {
+    "screen": "B08",
+    "variable": "imgFrame4"
+  },
+  "75d6d.svg": {
+    "screen": "B08",
+    "variable": "imgFrame5"
+  },
+  "1c7b9.svg": {
+    "screen": "B08",
+    "variable": "imgFrame6"
+  },
+  "2cb69.svg": {
+    "screen": "B08",
+    "variable": "imgFrame7"
+  },
+  "f60e1.svg": {
+    "screen": "B08",
+    "variable": "imgFrame8"
+  },
+  "f4f3d.svg": {
+    "screen": "B08",
+    "variable": "imgFrame11"
+  },
+  "3eb9f.svg": {
+    "screen": "B07",
+    "variable": "imgFrame9"
+  },
+  "a68aa.svg": {
+    "screen": "B08",
+    "variable": "imgFrame10"
+  },
+  "f0ced.png": {
+    "screen": "B03",
+    "variable": "img"
+  },
+  "a2882.svg": {
+    "screen": "B07",
+    "variable": "imgFrame10"
+  },
+  "52cb5.svg": {
+    "screen": "B08",
+    "variable": "imgFrame9"
+  }
+}

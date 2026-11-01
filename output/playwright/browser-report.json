@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "name": "登录校验、口令显隐与安全任务返回",
+      "status": "passed"
+    },
+    {
+      "name": "运营总览统计、筛选与设计截图",
+      "status": "passed"
+    },
+    {
+      "name": "课程编辑、草稿版本、确认发布与审计",
+      "status": "passed"
+    },
+    {
+      "name": "新建教师、分页筛选与失败保留表单",
+      "status": "passed"
+    },
+    {
+      "name": "共享地点保护与补签审核唯一学分",
+      "status": "passed"
+    },
+    {
+      "name": "邀请更正必填原因、子树移动与历史快照保留",
+      "status": "passed"
+    },
+    {
+      "name": "导出当前筛选、下载重新鉴权与审计",
+      "status": "passed"
+    },
+    {
+      "name": "统一事件字典与客户端/服务端来源区分",
+      "status": "passed"
+    },
+    {
+      "name": "学院运营数据范围、隐藏动作和路由防越权",
+      "status": "passed"
+    },
+    {
+      "name": "只读审计账号及全部业务路由可打开",
+      "status": "passed"
+    },
+    {
+      "name": "授权保存及会话撤权生效",
+      "status": "passed"
+    },
+    {
+      "name": "窄屏、桌面尺寸与长表单导航",
+      "status": "passed"
+    },
+    {
+      "name": "空结果、离线、权限过期与无脚本错误",
+      "status": "passed"
+    }
+  ],
+  "a11y": [
+    {
+      "name": "运营总览",
+      "violations": []
+    },
+    {
+      "name": "课程管理",
+      "violations": []
+    }
+  ],
+  "errors": [],
+  "browser": "Microsoft Edge",
+  "mode": "independent-local-mock"
+}
