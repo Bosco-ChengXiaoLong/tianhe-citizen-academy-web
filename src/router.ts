@@ -14,6 +14,9 @@ declare module "vue-router" {
     public?: boolean;
   }
 }
+import { isApi } from "./services/data-source";
+import { api } from "./services/http";
+import { apiRepository } from "./services/api-repository";
 const custom: Record<string, () => Promise<unknown>> = {
   overview: () => import("./pages/Overview.vue"),
   referrals: () => import("./pages/Referrals.vue"),
@@ -38,7 +41,10 @@ const routes: RouteRecordRaw[] = [
       { path: "", redirect: "/overview" },
       ...modules.map((m) => ({
         path: m.key,
-        component: custom[m.key] ?? (() => import("./pages/EntityList.vue")),
+        component:
+          isApi && (custom[m.key] || ["configs", "levels"].includes(m.key))
+            ? () => import("./pages/ApiOperations.vue")
+            : (custom[m.key] ?? (() => import("./pages/EntityList.vue"))),
         meta: { title: m.title, module: m.key, permission: m.permission },
       })),
       {
@@ -81,7 +87,27 @@ export const router = createRouter({
     return saved ?? scroll.get(to.fullPath) ?? { left: 0, top: 0 };
   },
 });
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  if (isApi) {
+    if (!api.session) {
+      if (to.meta.public) return;
+      return { path: "/login", query: { redirect: to.fullPath } };
+    }
+    try {
+      await apiRepository.identity();
+    } catch (e) {
+      if (!api.session)
+        return to.meta.public
+          ? undefined
+          : { path: "/login", query: { redirect: to.fullPath } };
+      throw e;
+    }
+    if (to.meta.public) return safeReturn(to.query.redirect);
+    if (to.meta.permission && !apiRepository.can(to.meta.permission))
+      return "/403";
+    if (!["/403"].includes(to.path)) await apiRepository.references();
+    return;
+  }
   const s = readSession();
   let valid = !!s && s.expiresAt > Date.now();
   try {

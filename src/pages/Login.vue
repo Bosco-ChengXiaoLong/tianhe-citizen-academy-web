@@ -6,7 +6,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useSessionStore } from "../stores/session";
 import { safeReturn } from "../domain/permissions";
 import AppIcon from "../components/AppIcon.vue";
-const username = ref("admin"),
+import { isApi } from "../services/data-source";
+const username = ref(isApi ? "" : "admin"),
   password = ref(""),
   busy = ref(false),
   error = ref("");
@@ -66,10 +67,10 @@ async function login() {
           native-type="submit"
           :loading="busy"
           class="login-submit"
-          >进入演示后台</el-button
+          >{{ isApi ? "登录管理后台" : "进入演示后台" }}</el-button
         ></el-form
       >
-      <div class="login-demo">
+      <div v-if="!isApi" class="login-demo">
         <span class="demo-tag">独立本地 mock</span>
         <p>演示账号：admin / operator / analyst / auditor</p>
         <p>统一演示口令：Demo@2026</p>

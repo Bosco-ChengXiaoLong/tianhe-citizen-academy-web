@@ -89,7 +89,14 @@ export interface Session {
 export interface Field {
   key: string;
   label: string;
-  kind?: "text" | "textarea" | "number" | "select" | "datetime" | "asset";
+  kind?:
+    | "text"
+    | "textarea"
+    | "number"
+    | "select"
+    | "datetime"
+    | "asset"
+    | "password";
   required?: boolean;
   options?: string[];
   relation?: TableName;

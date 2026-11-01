@@ -2,6 +2,9 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { repository, readSession, request } from "../services/client";
 import { DomainError } from "../domain/permissions";
+import { isApi } from "../services/data-source";
+import { apiRepository, apiIdentity } from "../services/api-repository";
+import { javaAdmin } from "../services/java-api";
 export const useSessionStore = defineStore("admin-session", () => {
   const session = ref(readSession());
   const account = computed(() => {
@@ -14,6 +17,12 @@ export const useSessionStore = defineStore("admin-session", () => {
     }
   });
   async function login(username: string, password: string) {
+    if (isApi) {
+      await javaAdmin.login(username, password);
+      await apiRepository.identity();
+      session.value = readSession();
+      return;
+    }
     await request(() => {
       const db = repository.read();
       const a = db.accounts.find((a) => a.username === username && a.active);
@@ -30,7 +39,16 @@ export const useSessionStore = defineStore("admin-session", () => {
       );
     });
   }
-  function logout() {
+  async function logout() {
+    if (isApi) {
+      try {
+        await javaAdmin.logout();
+      } finally {
+        apiIdentity.current = undefined;
+        session.value = null;
+      }
+      return;
+    }
     session.value = null;
     sessionStorage.removeItem("qmsy-admin-session");
   }

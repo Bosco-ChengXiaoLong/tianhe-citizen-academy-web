@@ -10,7 +10,14 @@ const route = useRoute(),
 router.onError(() => {
   routeError.value = true;
 });
+import { isApi } from "./services/data-source";
+import { registerSessionExpired } from "./services/http";
+registerSessionExpired(() => {
+  session.session = null;
+  void router.replace({ path: "/login", query: { redirect: route.fullPath } });
+});
 const timer = setInterval(() => {
+  if (isApi) return;
   const s = readSession();
   if (!s || route.meta.public) return;
   try {

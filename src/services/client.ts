@@ -1,3 +1,5 @@
+import { api } from "./http";
+import { apiIdentity } from "./api-repository";
 import { Repository } from "./repository";
 import type { Session } from "../types";
 import { DomainError } from "../domain/permissions";
@@ -19,6 +21,14 @@ export const localStorageAdapter = {
   },
 };
 export function readSession(): Session | null {
+  if (isApi)
+    return api.session
+      ? {
+          accountId: apiIdentity.current?.id ?? "",
+          expiresAt: api.session.expiresAt,
+          securityVersion: 1,
+        }
+      : null;
   try {
     const value = JSON.parse(
       sessionStorage.getItem("qmsy-admin-session") ?? "null",
@@ -28,11 +38,12 @@ export function readSession(): Session | null {
     return null;
   }
 }
-export const repository = new Repository(
-  localStorageAdapter,
-  readSession,
-  import.meta.env.VITE_DATA_SOURCE ?? "demo",
-);
+import { isApi } from "./data-source";
+import { apiRepository } from "./api-repository";
+// Legacy presentation reads a hydrated API cache; all API mutations are awaited by useOperation.
+export const repository = isApi
+  ? (apiRepository as unknown as Repository)
+  : new Repository(localStorageAdapter, readSession, "demo");
 let fault = "";
 export function failNext(value: string) {
   fault = value;

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { IMAGE_UPLOAD } from "../../../shared/contracts/protocol";
 import type { FormInstance, FormRules } from "element-plus";
 import type { Field, Row, TableName, Value } from "../types";
 import { repository } from "../services/client";
+import { isApi } from "../services/data-source";
+import { javaAdmin } from "../services/java-api";
 const props = defineProps<{ fields: Field[]; busy: boolean }>();
 const model = defineModel<Row>({ required: true });
 defineEmits<{ submit: [] }>();
@@ -41,10 +44,20 @@ async function file(event: Event, key: string) {
   fileError.value = "";
   if (!f) return;
   if (
-    !["image/jpeg", "image/png", "image/webp"].includes(f.type) ||
-    f.size > 2 * 1024 * 1024
+    !(IMAGE_UPLOAD.mimeTypes as readonly string[]).includes(f.type) ||
+    f.size > IMAGE_UPLOAD.maxBytes
   ) {
-    fileError.value = "请选择2MB以内 JPG、PNG 或 WebP 图片";
+    fileError.value = "请选择2MB以内 JPG 或 PNG 图片";
+    input.value = "";
+    return;
+  }
+  if (isApi) {
+    try {
+      const asset = await javaAdmin.upload(f, "运营后台上传素材");
+      model.value[key] = asset.url;
+    } catch (e) {
+      fileError.value = e instanceof Error ? e.message : "上传失败";
+    }
     input.value = "";
     return;
   }
@@ -111,10 +124,16 @@ defineExpose({ validate });
         <input
           type="file"
           :aria-label="field.label"
-          accept="image/jpeg,image/png,image/webp"
+          accept="image/jpeg,image/png"
           @change="file($event, field.key)"
         />
-        <p class="muted">仅保存本地演示图片，不上传真实服务器。</p>
+        <p class="muted">
+          {{
+            isApi
+              ? "图片将上传到学苑服务器，公开可访问。"
+              : "仅保存本地演示图片，不上传真实服务器。"
+          }}
+        </p>
         <img
           v-if="String(model[field.key] ?? '').startsWith('data:image/')"
           :src="String(model[field.key])"
@@ -126,7 +145,15 @@ defineExpose({ validate });
       <el-input
         v-else
         :model-value="String(model[field.key] ?? '')"
-        :type="field.kind === 'textarea' ? 'textarea' : 'text'"
+        :type="
+          field.kind === 'textarea'
+            ? 'textarea'
+            : field.kind === 'password'
+              ? 'password'
+              : 'text'
+        "
+        :show-password="field.kind === 'password'"
+        :autocomplete="field.kind === 'password' ? 'new-password' : undefined"
         :autosize="
           field.kind === 'textarea' ? { minRows: 3, maxRows: 12 } : undefined
         "

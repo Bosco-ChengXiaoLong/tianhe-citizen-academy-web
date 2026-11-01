@@ -17,7 +17,12 @@ const server = spawn(
     "5192",
     "--strictPort",
   ],
-  { cwd: root, windowsHide: true, stdio: "ignore" },
+  {
+    cwd: root,
+    env: { ...process.env, VITE_DATA_SOURCE: "mock" },
+    windowsHide: true,
+    stdio: "ignore",
+  },
 );
 const base = "http://127.0.0.1:5192";
 let browser, page;

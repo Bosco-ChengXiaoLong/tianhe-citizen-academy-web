@@ -5,6 +5,7 @@ const props = defineProps<{
   title: string;
   description: string;
   busy?: boolean;
+  errorMessage?: string;
 }>();
 const emit = defineEmits<{ close: []; confirm: [reason: string] }>();
 const reason = ref(""),
@@ -35,7 +36,7 @@ function submit() {
     @close="!busy && emit('close')"
     ><p>{{ description }}</p>
     <el-form novalidate label-position="top" @submit.prevent="submit"
-      ><el-form-item label="操作原因" :error="error"
+      ><el-form-item label="操作原因" :error="props.errorMessage || error"
         ><el-input
           v-model="reason"
           type="textarea"

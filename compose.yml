@@ -1,0 +1,28 @@
+name: qingmu-academy-admin
+services:
+  h5:
+    image: ${FRONTEND_IMAGE:?Set FRONTEND_IMAGE or use deploy/release.sh}
+    container_name: qingmu-academy-admin
+    restart: unless-stopped
+    init: true
+    mem_limit: ${ADMIN_MEMORY_LIMIT:-128m}
+    pids_limit: 64
+    stop_grace_period: 15s
+    ports:
+      - '${ADMIN_BIND_ADDRESS:-0.0.0.0}:${ADMIN_PORT:-19080}:8080'
+    environment:
+      JAVA_UPSTREAM: ${JAVA_UPSTREAM:-qingmu-java:8080}
+      NGINX_ENVSUBST_FILTER: JAVA_UPSTREAM
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    logging:
+      driver: local
+      options:
+        max-size: '10m'
+        max-file: '3'
+    networks:
+      - service-internal
+networks:
+  service-internal:
+    external: true
+    name: ${SERVICE_NETWORK:-qingmu-academy-internal}

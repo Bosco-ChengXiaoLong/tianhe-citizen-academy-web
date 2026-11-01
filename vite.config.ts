@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
       host: "127.0.0.1",
       port: 5188,
       strictPort: true,
-      proxy: { "/api/admin/v1": { target, changeOrigin: false } },
+      proxy: { "/api": { target, changeOrigin: false } },
       watch: { ignored: ["**/.work/**", "**/output/**", "**/node_modules/**"] },
     },
     build: {

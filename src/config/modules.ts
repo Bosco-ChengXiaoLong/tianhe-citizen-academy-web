@@ -1,4 +1,5 @@
 import type { ModuleDefinition, Field } from "../types";
+import { isApi } from "../services/data-source";
 const academy: Field = {
   key: "academyId",
   label: "所属学院",
@@ -264,7 +265,7 @@ export const modules: ModuleDefinition[] = [
     group: "教务运营",
     icon: "school",
     table: "levels",
-    permission: "credit:read",
+    permission: "level:read",
     description: "等级规则有版本，示例门槛不代表正式运营规则。",
     fields: [
       name,
@@ -407,8 +408,10 @@ export const permissionActions = [
       ])
       .concat([
         "course:publish",
-        "session:publish",
         "config:publish",
+        "level:publish",
+        "policy:read",
+        "policy:write",
         "referral:correct",
         "role:grant",
         "admin:write",
@@ -420,3 +423,41 @@ export const permissionActions = [
       ]),
   ),
 ];
+
+// API forms use actual server fields. Mock examples keep their original fields.
+if (isApi) {
+  for (const m of modules) {
+    if (["academies", "teachers", "categories", "media"].includes(m.key))
+      m.fields = m.fields?.filter((f) => f.key !== "academyId");
+    if (m.key === "courses")
+      m.fields = m.fields?.filter((f) => f.key !== "venueId");
+    if (m.key === "members")
+      m.fields = [
+        name,
+        academy,
+        { key: "studentNo", label: "学号", required: true },
+        {
+          key: "password",
+          label: "初始或重设口令（已有账号可留空）",
+          kind: "password",
+        },
+        { key: "invitationToken", label: "邀请凭据（选填）" },
+      ];
+    if (m.key === "sessions")
+      m.fields = [
+        ...(m.fields ?? []).filter(
+          (f) => !["name", "academyId"].includes(f.key),
+        ),
+        {
+          key: "classroomCode",
+          label: "课堂签到码",
+          kind: "password",
+          required: true,
+        },
+      ];
+    if (m.key === "messages")
+      m.fields = [name, academy, { ...description, required: true }];
+    if (m.key === "media")
+      m.description = "上传公开课程图片，类型与大小由服务端核验。";
+  }
+}

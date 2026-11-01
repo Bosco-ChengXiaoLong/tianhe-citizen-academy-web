@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { isApi } from "../services/data-source";
 import { uuid } from "../utils/uuid";
 
 import { useDraftGuard } from "../composables/useDraftGuard";
@@ -106,7 +107,9 @@ const enrollment = ref(false),
 const actionPrefix = computed(() => module.value.permission.split(":")[0]);
 const canWrite = computed(() => repository.can(`${actionPrefix.value}:write`));
 const canPublish = computed(() =>
-  repository.can(`${actionPrefix.value}:publish`),
+  repository.can(
+    `${actionPrefix.value}:${table() === "sessions" ? "write" : "publish"}`,
+  ),
 );
 const academies = computed(() => {
   try {
@@ -212,12 +215,12 @@ function show(value: unknown, key: string) {
   return Array.isArray(value) ? value.join("、") : String(value ?? "—");
 }
 async function exportRows() {
-  const target = (selected.value.length ? selected.value : filtered.value).map(
-    (r) => r.id,
-  );
+  const target = (
+    selected.value.length ? selected.value : isApi ? [] : filtered.value
+  ).map((r) => r.id);
   const result = await run(
     () => repository.createExport(table(), target, JSON.stringify(query.value)),
-    "已创建本地导出任务",
+    "已创建导出任务",
   );
   if (result.ok) void router.push("/exports");
 }
@@ -246,6 +249,7 @@ async function enroll() {
     ><el-button
       v-if="
         canWrite &&
+        !(isApi && table() === 'feedback') &&
         module.fields &&
         (table() !== 'academies' || repository.globalCan('academy:write'))
       "
@@ -362,8 +366,11 @@ async function enroll() {
           ><el-button
             v-if="
               canPublish &&
-              ['courses', 'sessions', 'configs'].includes(table()) &&
-              record.status !== '已发布'
+              (isApi
+                ? ['courses']
+                : ['courses', 'sessions', 'configs']
+              ).includes(table()) &&
+              (isApi || record.status !== '已发布')
             "
             link
             type="primary"
@@ -443,7 +450,9 @@ async function enroll() {
             >发送通知</el-button
           ><el-button
             v-if="
-              table() === 'levels' && canWrite && record.status !== '已发布'
+              table() === 'levels' &&
+              canWrite &&
+              (isApi || record.status !== '已发布')
             "
             link
             type="primary"
@@ -451,7 +460,9 @@ async function enroll() {
             >发布规则</el-button
           ><el-button
             v-if="
-              table() === 'sessions' && canPublish && record.status === '已发布'
+              table() === 'sessions' &&
+              canPublish &&
+              ['已发布', '报名中'].includes(record.status)
             "
             link
             @click="ask(record, '已关闭')"
@@ -473,13 +484,43 @@ async function enroll() {
             >回滚</el-button
           ><el-button
             v-if="
-              table() === 'feedback' && canWrite && record.status === '待处理'
+              !isApi &&
+              table() === 'feedback' &&
+              canWrite &&
+              record.status === '待处理'
             "
             link
             @click="ask(record, '已处理')"
             >标记已处理</el-button
-          ></template
-        ></el-table-column
+          ><el-button
+            v-if="
+              isApi &&
+              table() === 'feedback' &&
+              canWrite &&
+              record.status === '待处理'
+            "
+            link
+            @click="ask(record, '开始处理')"
+            >开始处理</el-button
+          >
+          <el-button
+            v-if="isApi && table() === 'evaluations' && canWrite"
+            link
+            @click="ask(record, record.hidden ? '恢复评价' : '隐藏评价')"
+            >{{ record.hidden ? "恢复展示" : "隐藏评价" }}</el-button
+          >
+          <el-button
+            v-if="
+              isApi &&
+              table() === 'sessions' &&
+              canWrite &&
+              record.status !== '已取消'
+            "
+            link
+            @click="ask(record, '已取消')"
+            >取消整场</el-button
+          >
+        </template></el-table-column
       ><template #empty
         ><el-empty
           :description="

@@ -31,7 +31,7 @@ const prefixes: Record<TableName, string> = {
   evaluations: "teaching",
   feedback: "feedback",
   credits: "credit",
-  levels: "credit",
+  levels: "level",
   messages: "message",
   configs: "config",
 };
@@ -42,7 +42,7 @@ export class Repository {
     private mode = "demo",
   ) {}
   read(): Database {
-    if (this.mode !== "demo")
+    if (this.mode !== "demo" && this.mode !== "mock")
       throw new DomainError(
         "NOT_CONNECTED",
         "API 模式尚未接入 Java 服务，未回退演示数据",
@@ -360,7 +360,7 @@ export class Repository {
     const db = this.read();
     const row = db.tables[table].find((r) => r.id === id);
     if (!row) throw new DomainError("NOT_FOUND", "记录不存在");
-    const action = `${prefixes[table]}:${["courses", "configs", "sessions"].includes(table) ? "publish" : "write"}`;
+    const action = `${prefixes[table]}:${["courses", "configs"].includes(table) ? "publish" : "write"}`;
     this.authorize(db, action, this.ids(row));
     if (row.version !== version)
       throw new DomainError("VERSION_CONFLICT", "版本已变化，请重新加载");
