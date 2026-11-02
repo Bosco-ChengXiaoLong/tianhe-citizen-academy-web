@@ -210,6 +210,7 @@ async function execute(why: string) {
   }
 }
 function show(value: unknown, key: string) {
+  if (key === "phoneMasked" && !value) return "—";
   if (key === "academyId")
     return academies.value.find((a) => a.id === value)?.name ?? String(value);
   return Array.isArray(value) ? value.join("、") : String(value ?? "—");

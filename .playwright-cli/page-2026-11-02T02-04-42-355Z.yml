@@ -1,0 +1,19 @@
+- main [ref=f27e3]:
+  - generic [ref=f27e4]:
+    - generic [ref=f27e5]: 青木私语学苑
+    - heading "欢迎回到运营管理中心" [level=1] [ref=f27e8]
+    - paragraph [ref=f27e9]: 把课程和服务安排好，让学习融入日常。
+    - generic [ref=f27e10]:
+      - generic [ref=f27e11]:
+        - generic [ref=f27e12]: 后台账号
+        - textbox "后台账号" [ref=f27e16]: admin
+      - generic [ref=f27e17]:
+        - generic [ref=f27e18]: 账户口令
+        - textbox "账户口令" [ref=f27e22]
+      - button "进入演示后台" [ref=f27e23] [cursor=pointer]
+    - generic [ref=f27e25]:
+      - text: 独立本地 mock
+      - paragraph [ref=f27e26]: 演示账号：admin / operator / analyst / auditor
+      - paragraph [ref=f27e27]: 统一演示口令：Demo@2026
+      - paragraph [ref=f27e28]: 请勿输入真实资料。无真实认证，与 H5 不实时同步。
+    - paragraph [ref=f27e29]: 青木私语（广东）健康管理有限公司

@@ -112,6 +112,7 @@ export function viewRow(raw: Record<string, unknown>): Row {
         r.name,
     );
   r.reviewed = Boolean(raw.evaluated);
+  r.phoneMasked = typeof raw.phoneMasked === "string" ? raw.phoneMasked : "";
   if (raw.status === "pending" && raw.category) r.status = "待处理";
   if (raw.status === "processing") r.status = "处理中";
   return r;
