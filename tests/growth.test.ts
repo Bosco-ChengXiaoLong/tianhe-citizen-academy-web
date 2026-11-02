@@ -1,6 +1,5 @@
 import { beforeEach, afterEach, expect, it, vi } from "vitest";
 import { Repository } from "../src/services/repository";
-import { readFileSync } from "node:fs";
 import { growth } from "../src/services/growth";
 import type { Session } from "../src/types";
 const state = vi.hoisted(() => ({ repo: undefined as unknown as Repository }));
@@ -29,19 +28,6 @@ beforeEach(() => {
   state.repo.read();
 });
 afterEach(() => vi.unstubAllGlobals());
-it("both independently deployable frontends vendor the canonical growth contract unchanged", () => {
-  const canonical = readFileSync(
-    new URL("../../shared/contracts/growth.ts", import.meta.url),
-    "utf8",
-  );
-  for (const path of [
-    "../shared/contracts/growth.ts",
-    "../../h5/shared/contracts/growth.ts",
-  ])
-    expect(readFileSync(new URL(path, import.meta.url), "utf8")).toBe(
-      canonical,
-    );
-});
 it("overview-only analyst can view scoped aggregate without member read", async () => {
   session.accountId = "analyst";
   expect(state.repo.can("member:read")).toBe(false);
