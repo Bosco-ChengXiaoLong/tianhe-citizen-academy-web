@@ -1,23 +1,53 @@
 pipeline {
     agent any
-    tools { nodejs 'node22' }
+
+    tools {
+        jdk 'jdk8'
+        maven 'maven3'
+    }
+
     options {
         disableConcurrentBuilds()
         timestamps()
         timeout(time: 30, unit: 'MINUTES')
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
-    parameters {
-        booleanParam(name: 'DEPLOY', defaultValue: true, description: 'Publish on this Docker-capable Jenkins agent')
-        booleanParam(name: 'RUN_BROWSER_TESTS', defaultValue: true, description: 'Run Chromium regression before publish')
-    }
-    triggers { githubPush() }
+
     stages {
-        stage('Check, build and publish admin') {
-            steps { sh 'sh deploy/jenkins-build.sh' }
+        stage('构建与测试') {
+            steps {
+                sh 'mvn -B -ntp clean verify'
+            }
+        }
+
+        stage('确认发布') {
+            steps {
+                input message: '确认发布学苑 Java 服务？'
+            }
+        }
+
+        stage('部署') {
+            steps {
+                withCredentials([
+                    file(
+                        credentialsId: 'qingmu-server-prod-env',
+                        variable: 'DEPLOY_ENV_FILE'
+                    )
+                ]) {
+                    sh 'BUILD_VERIFIED=true sh deploy/jenkins-build.sh'
+                }
+            }
         }
     }
+
     post {
-        always { archiveArtifacts artifacts: 'output/**/*.json,output/**/*.png', allowEmptyArchive: true }
+        always {
+            junit testResults: 'target/surefire-reports/*.xml',
+                  allowEmptyResults: true
+        }
+        success {
+            archiveArtifacts artifacts: 'target/qingmu-academy-server-*.jar,target/release.properties',
+                             fingerprint: true
+        }
     }
 }
