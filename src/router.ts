@@ -17,6 +17,12 @@ declare module "vue-router" {
 import { isApi } from "./services/data-source";
 import { api } from "./services/http";
 import { apiRepository } from "./services/api-repository";
+const workspaces: Record<string, () => Promise<unknown>> = {
+  overview: () => import("./pages/OperationsHome.vue"),
+  referrals: () => import("./pages/ReferrerWorkspace.vue"),
+  contributions: () => import("./pages/ReferrerWorkspace.vue"),
+  members: () => import("./pages/MemberWorkspace.vue"),
+};
 const custom: Record<string, () => Promise<unknown>> = {
   overview: () => import("./pages/Overview.vue"),
   referrals: () => import("./pages/Referrals.vue"),
@@ -42,9 +48,10 @@ const routes: RouteRecordRaw[] = [
       ...modules.map((m) => ({
         path: m.key,
         component:
-          isApi && (custom[m.key] || ["configs", "levels"].includes(m.key))
+          workspaces[m.key] ??
+          (isApi && (custom[m.key] || ["configs", "levels"].includes(m.key))
             ? () => import("./pages/ApiOperations.vue")
-            : (custom[m.key] ?? (() => import("./pages/EntityList.vue"))),
+            : (custom[m.key] ?? (() => import("./pages/EntityList.vue")))),
         meta: { title: m.title, module: m.key, permission: m.permission },
       })),
       {
@@ -105,7 +112,12 @@ router.beforeEach(async (to) => {
     if (to.meta.public) return safeReturn(to.query.redirect);
     if (to.meta.permission && !apiRepository.can(to.meta.permission))
       return "/403";
-    if (!["/403"].includes(to.path)) await apiRepository.references();
+    if (!["/403"].includes(to.path))
+      await apiRepository.references(
+        !["overview", "members", "referrals", "contributions"].includes(
+          String(to.meta.module),
+        ),
+      );
     return;
   }
   const s = readSession();

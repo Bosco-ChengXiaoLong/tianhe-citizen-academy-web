@@ -1,4 +1,14 @@
-export type Value = string | number | boolean | string[];
+export interface HomeBanner {
+  title: string;
+  imageUrl: string;
+  to: string;
+  enabled?: boolean;
+}
+export interface AttachmentRef {
+  id: string;
+}
+export type Value =
+  string | number | boolean | string[] | HomeBanner[] | AttachmentRef[];
 export interface Row {
   id: string;
   name: string;

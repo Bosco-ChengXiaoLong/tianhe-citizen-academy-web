@@ -1,0 +1,37 @@
+{
+  "environment": "Real Java8 + MySQL qingmu_academy_dev + local Redis, no route fixtures",
+  "checks": [
+    "真实H5邀请落地，未同意不采集，同意后服务端确认访问与注册凭据",
+    "后台粘贴H5来源建档，真实注册和访问转化同步增长",
+    "内部备注持久化，跟进追加后回显记录人和内容",
+    "首页折线图、可访问数据表、邀请漏斗与待办从真实SQL读取",
+    "个人贡献、被邀请名单、按需展开关系与历史归因互相一致",
+    "新学员账号无需手机号登录，内部备注无泄露，H5多张附件真实上传与鉴权回显",
+    "H5提交两张证明→Java存储关联→后台授权预览→H5历史回看完整闭环；匿名与其他学员不可读取",
+    "后台上传→保存列表缩略图→重编辑图片回显→大图预览使用真实服务器URL"
+  ],
+  "pageErrors": [],
+  "accessibility": [
+    {
+      "name": "学员备注与跟进",
+      "violations": 0
+    },
+    {
+      "name": "真实运营总览",
+      "violations": 0
+    },
+    {
+      "name": "推荐人工作台",
+      "violations": 0
+    },
+    {
+      "name": "H5反馈与历史图片",
+      "violations": 0
+    },
+    {
+      "name": "素材编辑与图片预览",
+      "violations": 0
+    }
+  ],
+  "remoteDeployed": false
+}

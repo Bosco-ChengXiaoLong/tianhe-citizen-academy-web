@@ -6,6 +6,8 @@ import { api } from "../services/http";
 import { apiRepository, labels } from "../services/api-repository";
 import { modules } from "../config/modules";
 import { useOperation } from "../composables/useOperation";
+import AttachmentGallery from "../components/AttachmentGallery.vue";
+import BannerEditor from "../components/BannerEditor.vue";
 import PageHeading from "../components/PageHeading.vue";
 import ReasonDialog from "../components/ReasonDialog.vue";
 type Item = Record<string, any>;
@@ -122,6 +124,7 @@ const columns = computed(() =>
     .filter(
       (k) =>
         ![
+          "attachments",
           "grants",
           "passwordHash",
           "settings",
@@ -185,7 +188,10 @@ async function load() {
       const h = await get(`/configs/${configKey.value}/history?${params}`);
       if (id === sequence) {
         config.value = c;
-        draft.value = structuredClone(c.settings ?? {});
+        draft.value = structuredClone({
+          ...c.settings,
+          banners: c.settings?.banners ?? [],
+        });
         history.value = h.items ?? [];
       }
       result = { items: h.items ?? [], total: h.total };
@@ -548,8 +554,9 @@ function rollback(row: Item) {
                 :label="c.name"
                 :value="c.id" /></el-select
           ></el-form-item>
-          <section v-for="key in ['banners', 'shortcuts']" :key="key">
-            <h3>{{ key === "banners" ? "首页横幅" : "快捷入口" }}</h3>
+          <BannerEditor v-model="draft.banners" :disabled="!canEdit || busy" />
+          <section v-for="key in ['shortcuts']" :key="key">
+            <h3>快捷入口</h3>
             <div
               v-for="(entry, index) in draft[key] ?? []"
               :key="index"
@@ -582,7 +589,7 @@ function rollback(row: Item) {
                   imageUrl: '',
                 })
               "
-              >添加{{ key === "banners" ? "横幅" : "入口" }}</el-button
+              >添加入口</el-button
             >
           </section></template
         >
@@ -787,7 +794,9 @@ function rollback(row: Item) {
     :model-value="!!detail"
     title="记录详情"
     @close="detail = undefined"
-    ><el-descriptions :column="1" border
+    ><AttachmentGallery :items="detail?.attachments" /><el-descriptions
+      :column="1"
+      border
       ><el-descriptions-item
         v-for="(value, key) in detail"
         :key="key"

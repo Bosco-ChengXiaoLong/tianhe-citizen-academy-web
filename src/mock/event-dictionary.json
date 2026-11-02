@@ -89,7 +89,9 @@
       "source": "server",
       "props": {
         "member_id": "id",
-        "invitation_id": "id"
+        "invitation_id": "id",
+        "visit_id": "id",
+        "registration_source": "id"
       }
     }
   }

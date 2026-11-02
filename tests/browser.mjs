@@ -259,15 +259,14 @@ try {
     );
   });
   await check("邀请更正必填原因、子树移动与历史快照保留", async () => {
-    await go("/referrals");
+    await go("/referrals?member=member-2");
+    await heading("学员02的邀请详情").waitFor();
     await shot("B05-referrals.png");
-    await page.getByRole("combobox", { name: "选择会员" }).click();
-    await page
-      .getByRole("option", { name: "学员02 / QMSY001027", exact: true })
-      .click();
     await click("更正直属邀请人");
     await page.getByRole("combobox", { name: "新直属邀请人" }).click();
-    await page.getByRole("option", { name: "学员03", exact: true }).click();
+    await page
+      .getByRole("option", { name: "学员03 / QMSY001028", exact: true })
+      .click();
     await click("预览并确认更正");
     await page
       .getByRole("textbox", { name: "操作原因", exact: true })

@@ -349,7 +349,8 @@ export const modules: ModuleDefinition[] = [
     icon: "sliders",
     table: "configs",
     permission: "config:read",
-    description: "首页入口、推荐课程、客服与福利外链，支持草稿发布及回滚。",
+    description:
+      "轮播图素材、排序与启停，首页入口、推荐课程、客服与福利外链；支持草稿、发布、审计及回滚。",
     fields: [
       name,
       academy,

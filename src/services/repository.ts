@@ -147,6 +147,30 @@ export class Repository {
     this.storage.setItem(DATABASE_KEY, JSON.stringify(db));
   }
   private validate(db: Database, table: TableName, row: Row, old?: Row) {
+    if (table === "configs" && row.banners) {
+      if (!Array.isArray(row.banners) || row.banners.length > 20)
+        throw new DomainError("VALIDATION", "轮播图最多20张");
+      for (const banner of row.banners) {
+        if (
+          typeof banner !== "object" ||
+          banner === null ||
+          !("title" in banner) ||
+          typeof banner.title !== "string" ||
+          !("to" in banner) ||
+          typeof banner.to !== "string" ||
+          !("imageUrl" in banner) ||
+          typeof banner.imageUrl !== "string" ||
+          !banner.title?.trim() ||
+          banner.title.length > 80 ||
+          !/^\/(?!\/)[A-Za-z0-9/_?=&.-]*$/.test(banner.to) ||
+          (banner.enabled !== false && !banner.imageUrl)
+        )
+          throw new DomainError(
+            "VALIDATION",
+            "请填写轮播说明、站内路径并选择图片",
+          );
+      }
+    }
     if (!row.name.trim()) throw new DomainError("VALIDATION", "请填写名称");
     if (
       table !== "academies" &&
@@ -392,6 +416,7 @@ export class Repository {
       row.publishedSnapshot = JSON.stringify(row);
     }
     if (table === "configs" && status === "已发布") {
+      this.validate(db, table, row);
       row.previousSnapshot = String(row.publishedSnapshot ?? "");
       row.publishedSnapshot = JSON.stringify(
         Object.fromEntries(
@@ -411,6 +436,7 @@ export class Repository {
         "serviceText",
         "externalUrl",
         "courseIds",
+        "banners",
       ])
         if (k in previous) row[k] = previous[k];
       status = "已发布";

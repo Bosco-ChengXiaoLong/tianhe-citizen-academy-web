@@ -13,6 +13,8 @@ import { useList } from "../composables/useList";
 import { useOperation } from "../composables/useOperation";
 import { row } from "../mock/seed";
 import type { Row, TableName } from "../types";
+import MediaPreview from "../components/MediaPreview.vue";
+import AttachmentGallery from "../components/AttachmentGallery.vue";
 import PageHeading from "../components/PageHeading.vue";
 import EntityForm from "../components/EntityForm.vue";
 import ReasonDialog from "../components/ReasonDialog.vue";
@@ -44,12 +46,27 @@ useDraftGuard(
   () => editor.value && JSON.stringify(draft.value) !== initial.value,
 );
 const detail = ref<Row>();
+function imageFor(row: Row) {
+  return String(
+    row.url ??
+      row.coverUrl ??
+      row.imageUrl ??
+      repository.read().tables.media.find((m) => m.id === row.coverId)?.url ??
+      "",
+  );
+}
+
 const detailFields = computed(() =>
   detail.value
     ? Object.fromEntries(
         Object.entries(detail.value).filter(
           ([key]) =>
-            !["publishedSnapshot", "previousSnapshot", "url"].includes(key),
+            ![
+              "publishedSnapshot",
+              "previousSnapshot",
+              "url",
+              "attachments",
+            ].includes(key),
         ),
       )
     : {},
@@ -61,6 +78,9 @@ const detailNames: Record<string, string> = {
   status: "状态",
   version: "版本",
   createdAt: "创建时间",
+  repliedAt: "回复时间",
+  category: "问题类型",
+  content: "反馈内容",
   studentNo: "学号",
   phoneMasked: "手机号（脱敏）",
   inviterId: "直属邀请人",
@@ -138,6 +158,7 @@ function edit(record?: Row) {
       });
   if (table() === "venues" && !record)
     draft.value.academyIds = [draft.value.academyId];
+  if (table() === "configs") draft.value.banners ??= [];
   initial.value = JSON.stringify(draft.value);
   editor.value = true;
 }
@@ -210,6 +231,17 @@ async function execute(why: string) {
   }
 }
 function show(value: unknown, key: string) {
+  if (key === "category")
+    return (
+      (
+        {
+          course: "课程",
+          attendance: "考勤",
+          account: "账户",
+          other: "其他",
+        } as Record<string, string>
+      )[String(value)] ?? String(value)
+    );
   if (key === "phoneMasked" && !value) return "—";
   if (key === "academyId")
     return academies.value.find((a) => a.id === value)?.name ?? String(value);
@@ -330,6 +362,15 @@ async function enroll() {
           page: 1,
         })
       "
+      ><el-table-column
+        v-if="['media', 'courses', 'academies', 'venues'].includes(table())"
+        label="图片"
+        width="115"
+        ><template #default="{ row: record }"
+          ><MediaPreview
+            :src="imageFor(record)"
+            :alt="record.name"
+            compact /></template></el-table-column
       ><el-table-column
         v-if="repository.can('export:create')"
         type="selection"
@@ -581,7 +622,10 @@ async function enroll() {
     title="记录详情"
     size="min(600px,100%)"
     @close="detail = undefined"
-    ><el-descriptions v-if="detail" :column="1" border
+    ><AttachmentGallery
+      v-if="isApi && detail"
+      :items="detail.attachments as { id: string }[]"
+    /><el-descriptions v-if="detail" :column="1" border
       ><el-descriptions-item
         v-for="(value, key) in detailFields"
         :key="key"

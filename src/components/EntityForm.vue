@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import BannerEditor from "./BannerEditor.vue";
+import MediaPreview from "./MediaPreview.vue";
+
 import { ref } from "vue";
 import { IMAGE_UPLOAD } from "../../shared/contracts/protocol";
 import type { FormInstance, FormRules } from "element-plus";
-import type { Field, Row, TableName, Value } from "../types";
+import type { Field, Row, TableName, Value, HomeBanner } from "../types";
 import { repository } from "../services/client";
 import { isApi } from "../services/data-source";
 import { javaAdmin } from "../services/java-api";
@@ -79,7 +82,10 @@ defineExpose({ validate });
     novalidate
     class="entity-form"
     @submit.prevent="$emit('submit')"
-    ><el-form-item
+    ><BannerEditor
+      v-if="fields.some((f) => f.key === 'serviceText')"
+      v-model="model.banners as HomeBanner[]"
+      :disabled="busy" /><el-form-item
       v-for="field in fields"
       :key="field.key"
       :label="field.label"
@@ -134,11 +140,10 @@ defineExpose({ validate });
               : "仅保存本地演示图片，不上传真实服务器。"
           }}
         </p>
-        <img
-          v-if="String(model[field.key] ?? '').startsWith('data:image/')"
+        <MediaPreview
+          v-if="model[field.key]"
           :src="String(model[field.key])"
           alt="所选素材预览"
-          class="asset-preview"
         />
         <p v-if="fileError" role="alert" class="error-text">{{ fileError }}</p>
       </div>

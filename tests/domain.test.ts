@@ -25,6 +25,59 @@ beforeEach(() => {
   repo.read();
 });
 const put = (db: Database) => storage.set(DATABASE_KEY, JSON.stringify(db));
+
+it("publishes and rolls back banner settings with the config snapshot", () => {
+  const base = repo.list("configs")[0]!;
+  repo.save("configs", {
+    ...base,
+    banners: [
+      {
+        title: "第一版",
+        imageUrl: "/test-image.png",
+        to: "/courses",
+        enabled: true,
+      },
+    ],
+  });
+  let current = repo.list("configs")[0]!;
+  repo.transition(
+    "configs",
+    current.id,
+    "已发布",
+    current.version,
+    "第一次发布",
+  );
+  current = repo.list("configs")[0]!;
+  repo.save("configs", {
+    ...current,
+    banners: [
+      {
+        title: "第二版",
+        imageUrl: "/test-image.png",
+        to: "/academies",
+        enabled: false,
+      },
+    ],
+  });
+  current = repo.list("configs")[0]!;
+  repo.transition(
+    "configs",
+    current.id,
+    "已发布",
+    current.version,
+    "第二次发布",
+  );
+  current = repo.list("configs")[0]!;
+  repo.transition("configs", current.id, "回滚", current.version, "恢复第一版");
+  expect(repo.list("configs")[0]!.banners).toEqual([
+    {
+      title: "第一版",
+      imageUrl: "/test-image.png",
+      to: "/courses",
+      enabled: true,
+    },
+  ]);
+});
 describe("action and scope permissions", () => {
   it("unions scopes per action without promoting read scope into write scope", () => {
     const db = seedDatabase();

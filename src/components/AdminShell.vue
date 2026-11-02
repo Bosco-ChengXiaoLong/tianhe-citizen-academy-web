@@ -1,11 +1,26 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onScopeDispose } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SideNav from "./SideNav.vue";
 import AppIcon from "./AppIcon.vue";
 import { useSessionStore } from "../stores/session";
 import { isApi } from "../services/data-source";
 const menu = ref(false);
+const dateText = () =>
+  new Date().toLocaleDateString("zh-CN", {
+    timeZone: "Asia/Shanghai",
+    year: "numeric",
+    month: "long",
+    day: "2-digit",
+  });
+const currentDate = ref(dateText());
+let dateTimer: ReturnType<typeof setInterval> | undefined;
+onMounted(() => {
+  dateTimer = setInterval(() => {
+    currentDate.value = dateText();
+  }, 60000);
+});
+onScopeDispose(() => clearInterval(dateTimer));
 const session = useSessionStore(),
   route = useRoute(),
   router = useRouter();
@@ -36,7 +51,7 @@ async function logout() {
         ><span class="breadcrumb">青木私语学苑 / {{ route.meta.title }}</span>
         <div class="topbar__actions">
           <span class="demo-tag">{{ isApi ? "业务管理" : "独立本地演示" }}</span
-          ><span class="topbar__date">2026年11月01日</span
+          ><span class="topbar__date">{{ currentDate }}</span
           ><AppIcon name="bell" /><span>{{ session.account?.name }}</span
           ><el-button text @click="logout">退出 / 切换账号</el-button>
         </div>

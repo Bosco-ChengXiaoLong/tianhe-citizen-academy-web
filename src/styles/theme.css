@@ -7,6 +7,7 @@
   --surface: #fff;
   --ink: #202c35;
   --muted: #65717c;
+  --el-color-info: var(--muted);
   --line: #e4e7ec;
   --green: #24785d;
   --radius-panel: 20px;
@@ -173,6 +174,19 @@ button:active {
 }
 .el-button {
   font-weight: 500;
+}
+.el-button:not(.el-button--primary):not(.el-button--danger):not(.is-disabled) {
+  --el-button-hover-text-color: var(--brand-ink);
+}
+.el-button.is-link,
+.el-button.is-text {
+  --el-button-text-color: var(--brand-ink);
+  --el-button-hover-text-color: var(--brand-ink);
+}
+.el-button--primary:not(.is-link):not(.is-text):not(.is-disabled) {
+  --el-button-hover-bg-color: var(--brand-ink);
+  --el-button-hover-border-color: var(--brand-ink);
+  --el-button-hover-text-color: var(--surface);
 }
 .el-alert {
   margin: 12px 0;

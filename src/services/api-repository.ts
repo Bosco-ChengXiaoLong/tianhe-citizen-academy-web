@@ -242,7 +242,7 @@ export class ApiRepository {
     database.tables[table] = items;
     return { ...result, items };
   }
-  async references() {
+  async references(includeMembers = true) {
     // Reference selectors fetch every authorised page; primary lists use page()/server totals.
     for (const t of [
       "academies",
@@ -255,7 +255,11 @@ export class ApiRepository {
       "sessions",
       "members",
     ] as TableName[]) {
-      if (!this.can(prefixes[t] + ":read")) continue;
+      if (
+        (t === "members" && !includeMembers) ||
+        !this.can(prefixes[t] + ":read")
+      )
+        continue;
       const all: Row[] = [];
       for (let page = 1; ; page++) {
         const result = await this.page(t, { page, pageSize: 100 });
