@@ -103,6 +103,8 @@ export function viewRow(raw: Record<string, unknown>): Row {
   if (raw.source) r.status = raw.reversalOf ? "已冲正" : "已入账";
   if (raw.coverUrl) r.coverId = String(raw.coverUrl).split("/").pop() ?? "";
   if (raw.mediaUrl && !raw.url) r.url = String(raw.mediaUrl);
+  if (!r.url && raw.contentType && raw.bytes !== undefined)
+    r.url = `/api/media/${r.id}`;
   if (raw.courseId && !raw.title && raw.startsAt)
     r.name = String(
       raw.courseTitle ??

@@ -1,0 +1,170 @@
+- generic [ref=e26]:
+  - link "跳到主要内容" [ref=e27] [cursor=pointer]:
+    - /url: "#main"
+  - complementary [ref=e28]:
+    - generic [ref=e29]:
+      - link [ref=e30] [cursor=pointer]:
+        - /url: "#/overview"
+        - generic [ref=e32]:
+          - strong [ref=e33]: 青木私语学苑
+          - text: 运营管理中心
+      - navigation "后台主导航" [ref=e34]:
+        - generic [ref=e35]:
+          - paragraph [ref=e36]: 工作台
+          - link "运营总览" [ref=e37] [cursor=pointer]:
+            - /url: "#/overview"
+        - generic [ref=e40]:
+          - paragraph [ref=e41]: 内容管理
+          - link "课程管理" [ref=e42] [cursor=pointer]:
+            - /url: "#/courses"
+          - link "学院管理" [ref=e45] [cursor=pointer]:
+            - /url: "#/academies"
+          - link "上课地点" [ref=e48] [cursor=pointer]:
+            - /url: "#/venues"
+          - link "教室管理" [ref=e51] [cursor=pointer]:
+            - /url: "#/rooms"
+          - link "教师管理" [ref=e54] [cursor=pointer]:
+            - /url: "#/teachers"
+          - link "课程分类" [ref=e57] [cursor=pointer]:
+            - /url: "#/categories"
+          - link "素材管理" [ref=e60] [cursor=pointer]:
+            - /url: "#/media"
+          - link "首页展示配置" [ref=e63] [cursor=pointer]:
+            - /url: "#/configs"
+        - generic [ref=e66]:
+          - paragraph [ref=e67]: 教务运营
+          - link "排课场次" [ref=e68] [cursor=pointer]:
+            - /url: "#/sessions"
+          - link "报名与考勤" [ref=e71] [cursor=pointer]:
+            - /url: "#/enrollments"
+          - link "补签审核" [ref=e74] [cursor=pointer]:
+            - /url: "#/makeups"
+          - link "课程评价" [ref=e77] [cursor=pointer]:
+            - /url: "#/evaluations"
+          - link "帮助与反馈" [ref=e80] [cursor=pointer]:
+            - /url: "#/feedback"
+          - link "学分流水" [ref=e83] [cursor=pointer]:
+            - /url: "#/credits"
+          - link "等级与权益" [ref=e86] [cursor=pointer]:
+            - /url: "#/levels"
+          - link "站内消息" [ref=e89] [cursor=pointer]:
+            - /url: "#/messages"
+        - generic [ref=e92]:
+          - paragraph [ref=e93]: 用户与增长
+          - link "学员管理" [ref=e94] [cursor=pointer]:
+            - /url: "#/members"
+          - link "用户与邀请关系" [ref=e97] [cursor=pointer]:
+            - /url: "#/referrals"
+          - link "邀请贡献" [ref=e100] [cursor=pointer]:
+            - /url: "#/contributions"
+        - generic [ref=e103]:
+          - paragraph [ref=e104]: 数据分析
+          - link "课程偏好与活跃" [ref=e105] [cursor=pointer]:
+            - /url: "#/analytics"
+          - link "埋点事件与质量" [ref=e108] [cursor=pointer]:
+            - /url: "#/events"
+        - generic [ref=e111]:
+          - paragraph [ref=e112]: 系统管理
+          - link "角色与数据权限" [ref=e113] [cursor=pointer]:
+            - /url: "#/roles"
+          - link "后台账号" [ref=e116] [cursor=pointer]:
+            - /url: "#/accounts"
+          - link "操作审计" [ref=e119] [cursor=pointer]:
+            - /url: "#/audit"
+          - link "导出任务" [ref=e122] [cursor=pointer]:
+            - /url: "#/exports"
+      - generic [ref=e125]:
+        - generic [ref=e126]: 当前数据范围
+        - strong [ref=e127]: 按账号与动作授权
+      - paragraph [ref=e128]: 天河 · 让学习融入日常
+  - generic [ref=e129]:
+    - banner [ref=e130]:
+      - generic [ref=e131]: 青木私语学苑 / 学院管理
+      - generic [ref=e132]:
+        - generic [ref=e133]: 业务管理
+        - generic [ref=e134]: 2026年11月01日
+        - generic [ref=e136]: 初始安全管理员
+        - button "退出 / 切换账号" [ref=e137] [cursor=pointer]
+    - main [ref=e139]:
+      - generic [ref=e223]:
+        - generic [ref=e224]:
+          - heading "学院管理" [level=1] [ref=e225]
+          - paragraph [ref=e226]: 配置学院信息与展示状态。
+        - generic [ref=e227]:
+          - button "导出筛选结果" [ref=e228] [cursor=pointer]
+          - button "新建学院" [ref=e230] [cursor=pointer]
+      - generic [ref=e232]:
+        - generic [ref=e233]:
+          - textbox "搜索名称、编号" [ref=e236]
+          - generic [ref=e239] [cursor=pointer]:
+            - generic:
+              - combobox "学院筛选" [ref=e241]
+              - generic [ref=e242]: 全部学院
+          - generic [ref=e248] [cursor=pointer]:
+            - generic:
+              - combobox "状态筛选" [ref=e250]
+              - generic [ref=e251]: 全部状态
+          - button "查询" [ref=e256] [cursor=pointer]
+          - button "清空筛选" [ref=e258] [cursor=pointer]
+        - generic "业务记录" [ref=e260]:
+          - generic [ref=e261]:
+            - table [ref=e263]:
+              - rowgroup [ref=e271]:
+                - row [ref=e272]:
+                  - columnheader [ref=e273]:
+                    - generic "选择所有行" [ref=e275]:
+                      - generic [ref=e276] [cursor=pointer]:
+                        - checkbox "选择所有行" [disabled]
+                  - columnheader [ref=e278] [cursor=pointer]:
+                    - generic [ref=e279]:
+                      - text: 名称
+                      - button "按 名称 排序" [ref=e280]
+                  - columnheader [ref=e283] [cursor=pointer]:
+                    - generic [ref=e284]:
+                      - text: 学院
+                      - button "按 学院 排序" [ref=e285]
+                  - columnheader [ref=e288] [cursor=pointer]:
+                    - generic [ref=e289]:
+                      - text: 状态
+                      - button "按 状态 排序" [ref=e290]
+                  - columnheader [ref=e293] [cursor=pointer]:
+                    - generic [ref=e294]:
+                      - text: 版本
+                      - button "按 版本 排序" [ref=e295]
+                  - columnheader "操作" [ref=e298]
+            - generic [ref=e303]:
+              - table:
+                - rowgroup
+              - paragraph [ref=e325]: 暂无记录
+        - generic [ref=e326]:
+          - generic [ref=e327]: 共 0 条
+          - generic [ref=e329] [cursor=pointer]:
+            - generic:
+              - combobox "每页条数" [ref=e331]
+              - generic [ref=e332]: 10条/页
+          - generic [ref=e337]:
+            - button "上一页" [disabled] [ref=e338]
+            - list [ref=e339]:
+              - listitem "第 1 页" [ref=e340]: "1"
+            - button "下一页" [disabled] [ref=e341]
+      - dialog "新建学院管理" [ref=e343]:
+        - generic [ref=e344]:
+          - heading "新建学院管理" [level=2] [ref=e345]
+          - button "关闭此对话框" [ref=e346] [cursor=pointer]
+        - generic [ref=e351]:
+          - generic [ref=e352]:
+            - generic [ref=e353]: "*名称"
+            - textbox "名称" [ref=e357]
+          - generic [ref=e358]:
+            - generic [ref=e359]: 说明
+            - textbox "说明" [ref=e362]
+          - generic [ref=e363]:
+            - generic [ref=e364]: 展示排序
+            - generic [ref=e366]:
+              - button "减少数值" [ref=e367]
+              - button "增加数值" [ref=e371] [cursor=pointer]
+              - spinbutton "展示排序" [ref=e377]: "0"
+        - generic [ref=e378]:
+          - button "取消" [ref=e379] [cursor=pointer]
+          - button "保存修改" [ref=e381] [cursor=pointer]
+    - contentinfo [ref=e222]: 青木私语（广东）健康管理有限公司
