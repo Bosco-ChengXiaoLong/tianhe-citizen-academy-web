@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { IMAGE_UPLOAD } from "../../../shared/contracts/protocol";
+import { IMAGE_UPLOAD } from "../../shared/contracts/protocol";
 import type { FormInstance, FormRules } from "element-plus";
 import type { Field, Row, TableName, Value } from "../types";
 import { repository } from "../services/client";

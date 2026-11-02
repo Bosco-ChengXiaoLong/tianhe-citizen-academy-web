@@ -1,4 +1,4 @@
-import dictionary from "../../../文档/H5/开发/event-dictionary.json";
+import dictionary from "./event-dictionary.json";
 export { dictionary };
 export const eventSamples = Array.from({ length: 32 }, (_, i) => ({
   event_id: `sample-${String(i + 1).padStart(3, "0")}`,

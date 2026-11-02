@@ -14,10 +14,10 @@ pipeline {
     triggers { githubPush() }
     stages {
         stage('Check, build and publish admin') {
-            steps { sh 'sh admin/deploy/jenkins-build.sh' }
+            steps { sh 'sh deploy/jenkins-build.sh' }
         }
     }
     post {
-        always { archiveArtifacts artifacts: 'admin/output/**/*.json,admin/output/**/*.png', allowEmptyArchive: true }
+        always { archiveArtifacts artifacts: 'output/**/*.json,output/**/*.png', allowEmptyArchive: true }
     }
 }

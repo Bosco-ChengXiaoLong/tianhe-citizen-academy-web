@@ -1,6 +1,6 @@
 name: qingmu-academy-admin
 services:
-  h5:
+  admin:
     image: ${FRONTEND_IMAGE:?Set FRONTEND_IMAGE or use deploy/release.sh}
     container_name: qingmu-academy-admin
     restart: unless-stopped

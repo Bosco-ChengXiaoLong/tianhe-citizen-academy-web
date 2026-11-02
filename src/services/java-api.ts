@@ -1,12 +1,12 @@
-import { uuid } from "../../../shared/utils/uuid";
+import { uuid } from "../../shared/utils/uuid";
 import { api } from "./http";
 import type {
   PageDTO,
   AdminCourseDTO,
   CourseSessionDTO,
   EnrollmentDTO,
-} from "../../../shared/contracts/entities";
-import type { MediaDTO } from "../../../shared/contracts/protocol";
+} from "../../shared/contracts/entities";
+import type { MediaDTO } from "../../shared/contracts/protocol";
 const auth = { authenticated: true };
 export const javaAdmin = {
   login: (username: string, password: string) =>

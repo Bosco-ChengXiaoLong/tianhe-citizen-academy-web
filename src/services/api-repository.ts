@@ -1,9 +1,9 @@
 import { reactive } from "vue";
 import { api } from "./http";
-import { uuid } from "../../../shared/utils/uuid";
+import { uuid } from "../../shared/utils/uuid";
 import { resourceDraft, courseDraft, sessionDraft } from "./wire-mapping";
 import type { Database, Row, TableName } from "../types";
-import type { PageDTO } from "../../../shared/contracts/entities";
+import type { PageDTO } from "../../shared/contracts/entities";
 export interface AdminIdentity {
   id: string;
   displayName: string;

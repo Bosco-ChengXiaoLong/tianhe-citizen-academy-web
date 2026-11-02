@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createJavaClient } from "../../../shared/transport/java-client";
+import { createJavaClient } from "../../shared/transport/java-client";
 let onSessionExpired: (() => void) | undefined;
 export function registerSessionExpired(handler: () => void) {
   onSessionExpired = handler;

@@ -1,4 +1,4 @@
 #!/bin/sh
 set -eu
-ROOT=$(CDPATH= cd "$(dirname "$0")/../.." && pwd)
-exec sh "$ROOT/deploy/release.sh" admin
+SCRIPT_DIR=$(CDPATH= cd "$(dirname "$0")" && pwd)
+exec sh "$SCRIPT_DIR/release.sh" admin

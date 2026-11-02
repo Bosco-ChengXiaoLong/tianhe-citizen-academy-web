@@ -1,1 +1,1 @@
-export { uuid } from "../../../shared/utils/uuid";
+export { uuid } from "../../shared/utils/uuid";

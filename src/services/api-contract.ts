@@ -4,12 +4,12 @@ import type {
   EnrollmentDTO,
   PageDTO,
   MutationDTO,
-} from "../../../shared/contracts/entities";
+} from "../../shared/contracts/entities";
 export type {
   AdminCourseDTO,
   CourseSessionDTO,
   EnrollmentDTO,
-} from "../../../shared/contracts/entities";
+} from "../../shared/contracts/entities";
 /** Reserved Java API boundary, not an implemented HTTP backend. API mode must fail explicitly until connected. */
 export interface AdminApi {
   courses(

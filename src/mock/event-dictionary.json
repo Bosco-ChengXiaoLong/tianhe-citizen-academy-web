@@ -1,0 +1,96 @@
+{
+  "schema_version": "1.0.0",
+  "events": {
+    "page_view": {
+      "source": "client",
+      "props": {
+        "referrer_page": "id"
+      }
+    },
+    "course_impression": {
+      "source": "client",
+      "props": {
+        "course_id": "id",
+        "academy_id": "id",
+        "placement": "id"
+      }
+    },
+    "course_click": {
+      "source": "client",
+      "props": {
+        "course_id": "id",
+        "placement": "id"
+      }
+    },
+    "course_view": {
+      "source": "client",
+      "props": {
+        "course_id": "id",
+        "academy_id": "id",
+        "course_session_id": "id"
+      }
+    },
+    "course_engagement": {
+      "source": "client",
+      "props": {
+        "course_id": "id",
+        "duration_ms": "number"
+      }
+    },
+    "search_submit": {
+      "source": "client",
+      "props": {
+        "category_id": "id",
+        "result_count": "number"
+      }
+    },
+    "enrollment_click": {
+      "source": "client",
+      "props": {
+        "course_id": "id",
+        "course_session_id": "id"
+      }
+    },
+    "invite_open": {
+      "source": "client",
+      "props": {
+        "invitation_id": "id",
+        "campaign_id": "id"
+      }
+    },
+    "favorite_add": {
+      "source": "server",
+      "props": {
+        "course_id": "id"
+      }
+    },
+    "favorite_remove": {
+      "source": "server",
+      "props": {
+        "course_id": "id"
+      }
+    },
+    "enrollment_confirmed": {
+      "source": "server",
+      "props": {
+        "enrollment_id": "id",
+        "course_id": "id",
+        "course_session_id": "id"
+      }
+    },
+    "attendance_confirmed": {
+      "source": "server",
+      "props": {
+        "course_session_id": "id",
+        "attendance_id": "id"
+      }
+    },
+    "member_registered": {
+      "source": "server",
+      "props": {
+        "member_id": "id",
+        "invitation_id": "id"
+      }
+    }
+  }
+}
