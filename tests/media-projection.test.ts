@@ -1,6 +1,6 @@
 import { expect, it } from "vitest";
 import { viewRow } from "../src/services/api-repository";
-import { LOGIN_POLICY } from "../../shared/contracts/login-policy";
+import { LOGIN_POLICY } from "../shared/contracts/login-policy";
 
 it("accepts phone-less members without a binding requirement", () => {
   expect(
