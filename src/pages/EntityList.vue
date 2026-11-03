@@ -13,6 +13,8 @@ import { useList } from "../composables/useList";
 import { useOperation } from "../composables/useOperation";
 import { row } from "../mock/seed";
 import type { Row, TableName } from "../types";
+import { formatDateTime } from "../utils/date-time";
+import MediaReferences from "../components/MediaReferences.vue";
 import MediaPreview from "../components/MediaPreview.vue";
 import AttachmentGallery from "../components/AttachmentGallery.vue";
 import PageHeading from "../components/PageHeading.vue";
@@ -156,6 +158,7 @@ function edit(record?: Row) {
           : "启用",
         academyId: academies.value[0]?.id ?? "humanities",
       });
+  draft.value.editingExisting = !!record;
   if (table() === "venues" && !record)
     draft.value.academyIds = [draft.value.academyId];
   if (table() === "configs") draft.value.banners ??= [];
@@ -231,6 +234,8 @@ async function execute(why: string) {
   }
 }
 function show(value: unknown, key: string) {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value))
+    return formatDateTime(value);
   if (key === "category")
     return (
       (
@@ -428,17 +433,19 @@ async function enroll() {
           ><el-button
             v-if="
               canWrite &&
-              [
-                'academies',
-                'venues',
-                'teachers',
-                'categories',
-                'media',
-              ].includes(table())
+              ['academies', 'venues', 'teachers', 'categories'].includes(
+                table(),
+              )
             "
             link
             @click="ask(record, record.status === '停用' ? '启用' : '停用')"
             >{{ record.status === "停用" ? "启用" : "停用" }}</el-button
+          ><el-button
+            v-if="canWrite && table() === 'media'"
+            link
+            type="danger"
+            @click="ask(record, '删除')"
+            >删除</el-button
           ><template
             v-if="
               table() === 'makeups' && canWrite && record.status === '待审核'
@@ -600,7 +607,7 @@ async function enroll() {
   </section>
   <el-drawer
     v-model="editor"
-    :title="`${draft.version ? '编辑' : '新建'}${module.title}`"
+    :title="`${draft.editingExisting ? '编辑' : '新建'}${module.title}`"
     size="min(720px,100%)"
     :before-close="close"
     ><EntityForm
@@ -608,6 +615,7 @@ async function enroll() {
       v-model="draft"
       :fields="module.fields ?? []"
       :busy="busy"
+      :immutable-asset="table() === 'media' && !!draft.editingExisting"
       @submit="save"
     />
     <p v-if="actionError" role="alert" class="error-text">{{ actionError }}</p>
@@ -622,7 +630,10 @@ async function enroll() {
     title="记录详情"
     size="min(600px,100%)"
     @close="detail = undefined"
-    ><AttachmentGallery
+    ><MediaReferences
+      v-if="isApi && detail && table() === 'media'"
+      :id="detail.id"
+    /><AttachmentGallery
       v-if="isApi && detail"
       :items="detail.attachments as { id: string }[]"
     /><el-descriptions v-if="detail" :column="1" border
@@ -653,9 +664,14 @@ async function enroll() {
     :title="reason?.title ?? ''"
     :description="reason?.description ?? ''"
     :busy="busy"
+    :error-message="actionError"
     @close="reason = undefined"
     @confirm="execute"
-  /><el-dialog
+    ><MediaReferences
+      v-if="isApi && reason && table() === 'media'"
+      :key="reason.record.id + actionError"
+      :id="reason.record.id" /></ReasonDialog
+  ><el-dialog
     v-model="enrollment"
     title="后台代报名"
     width="min(560px,calc(100% - 32px))"

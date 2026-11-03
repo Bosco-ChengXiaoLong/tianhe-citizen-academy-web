@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDateTime } from "../utils/date-time";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessageBox } from "element-plus";
@@ -100,6 +101,8 @@ const names: Record<string, string> = {
   permissionCode: "权限动作",
 };
 function text(value: unknown): string {
+  if (typeof value === "string" && /^\d{4}-\d{2}-\d{2}T/.test(value))
+    return formatDateTime(value);
   if (value === null || value === undefined) return "—";
   if (typeof value === "boolean") return value ? "是" : "否";
   if (typeof value === "object")

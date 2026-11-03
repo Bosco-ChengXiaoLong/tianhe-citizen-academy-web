@@ -270,7 +270,8 @@ export class ApiRepository {
     }
   }
   async save(table: TableName, input: Row) {
-    const create = Number(input.version) === 0;
+    const create =
+      input.editingExisting !== true && Number(input.version) === 0;
     const reason = String(input.reason ?? "运营后台保存配置");
     let path = resourcePaths[table]
       ? `/resources/${resourcePaths[table]}`
@@ -375,8 +376,12 @@ export class ApiRepository {
     else if (table === "makeups") {
       path += "/review";
       body = { version, reason, approved: status === "已通过" };
-    } else if (table === "media") path += "/delete";
-    else if (table === "feedback") path += "/process";
+    } else if (table === "media") {
+      if (status !== "删除")
+        throw Error("素材不再支持停用，请刷新后台使用删除");
+      path += "/delete";
+      body = { version, reason, confirmDelete: true };
+    } else if (table === "feedback") path += "/process";
     else if (table === "evaluations") {
       path += "/visibility";
       body = { version, reason, hidden: status === "隐藏评价" };

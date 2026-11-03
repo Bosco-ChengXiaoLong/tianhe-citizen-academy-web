@@ -35,16 +35,21 @@ function submit() {
     :close-on-press-escape="!busy"
     @close="!busy && emit('close')"
     ><p>{{ description }}</p>
+    <slot />
     <el-form novalidate label-position="top" @submit.prevent="submit"
-      ><el-form-item label="操作原因" :error="props.errorMessage || error"
+      ><el-form-item label="操作原因" :error="error"
         ><el-input
           v-model="reason"
           type="textarea"
           resize="none"
           :rows="3"
           aria-label="操作原因"
-          :maxlength="500" /></el-form-item></el-form
-    ><template #footer
+          :maxlength="500" /></el-form-item
+    ></el-form>
+    <p v-if="props.errorMessage" role="alert" class="error-text">
+      {{ props.errorMessage }}
+    </p>
+    <template #footer
       ><el-button :disabled="busy" @click="emit('close')">暂不操作</el-button
       ><el-button type="primary" :loading="busy" @click="submit">{{
         title

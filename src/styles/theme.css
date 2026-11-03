@@ -8,6 +8,9 @@
   --ink: #202c35;
   --muted: #65717c;
   --el-color-info: var(--muted);
+  --danger: #a83928;
+  --el-color-danger: var(--danger);
+  --el-color-error: var(--danger);
   --line: #e4e7ec;
   --green: #24785d;
   --radius-panel: 20px;
@@ -119,7 +122,7 @@ button:active {
   color: var(--muted);
 }
 .error-text {
-  color: #a83928;
+  color: var(--danger);
   margin: 12px 0;
 }
 .break-word {

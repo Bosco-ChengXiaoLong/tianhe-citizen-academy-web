@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDateTime } from "../utils/date-time";
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { growth, type Query } from "../services/growth";
@@ -128,11 +129,7 @@ function goMembers(segment?: string) {
     ><span class="muted"
       >{{ isApi ? "真实接口" : "独立演示" }} · 北京时间 · 数据更新
       {{
-        data?.overview.updatedAt
-          ? new Date(data.overview.updatedAt).toLocaleString("zh-CN", {
-              timeZone: "Asia/Shanghai",
-            })
-          : "—"
+        data?.overview.updatedAt ? formatDateTime(data.overview.updatedAt) : "—"
       }}</span
     >
   </form>

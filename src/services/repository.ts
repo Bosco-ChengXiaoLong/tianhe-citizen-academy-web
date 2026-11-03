@@ -1,3 +1,4 @@
+import { validBannerTarget } from "../../shared/contracts/banner-target";
 import { uuid } from "../utils/uuid";
 import { clone } from "../utils/clone";
 import { seedDatabase } from "../mock/seed";
@@ -162,12 +163,12 @@ export class Repository {
           typeof banner.imageUrl !== "string" ||
           !banner.title?.trim() ||
           banner.title.length > 80 ||
-          !/^\/(?!\/)[A-Za-z0-9/_?=&.-]*$/.test(banner.to) ||
+          !validBannerTarget(banner.to) ||
           (banner.enabled !== false && !banner.imageUrl)
         )
           throw new DomainError(
             "VALIDATION",
-            "请填写轮播说明、站内路径并选择图片",
+            "请填写轮播说明、站内路径或HTTPS链接并选择图片",
           );
       }
     }
@@ -332,6 +333,7 @@ export class Repository {
         "内容已被其他窗口修改，请重新加载后编辑",
       );
     const next = clone(input);
+    delete next.editingExisting;
     if (old) next.status = old.status;
     this.validate(db, table, next, old);
     next.version = (old?.version ?? 0) + 1;
@@ -396,7 +398,7 @@ export class Repository {
       rooms: ["启用", "停用"],
       teachers: ["启用", "停用"],
       categories: ["启用", "停用"],
-      media: ["启用", "停用"],
+      media: ["删除"],
       courses: ["已发布", "已下架", "已归档"],
       sessions: ["已发布", "已关闭"],
       makeups: ["已通过", "已驳回"],
@@ -409,6 +411,26 @@ export class Repository {
     };
     if (!statuses[table]?.includes(status))
       throw new DomainError("INVALID_STATE", "该状态变更不被允许");
+    if (table === "media") {
+      const urls = [row.id, String(row.url ?? "")].filter(Boolean);
+      const uses = Object.entries(db.tables)
+        .filter(([t]) => t !== "media")
+        .flatMap(([t, records]) =>
+          records
+            .filter((r) => urls.some((u) => JSON.stringify(r).includes(u)))
+            .map((r) => `${t}：${r.name}`),
+        );
+      if (uses.length)
+        throw new DomainError(
+          "MEDIA_IN_USE",
+          "素材不能删除，正在被以下位置使用：" + uses.join("；"),
+        );
+      const before = clone(row);
+      db.tables.media = db.tables.media.filter((r) => r.id !== id);
+      this.audit(db, "删除", "media", id, reason, before, null);
+      this.commit(db);
+      return;
+    }
     const before = clone(row);
     if (table === "courses" && status === "已发布") {
       this.validate(db, table, row);

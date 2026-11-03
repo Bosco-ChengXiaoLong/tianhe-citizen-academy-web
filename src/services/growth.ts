@@ -474,6 +474,10 @@ export const growth = {
       id: id ?? uuid(),
       name: String(input.displayName),
       studentNo: String(input.studentNo),
+      phone:
+        input.phone === undefined
+          ? String(old?.phone ?? "")
+          : String(input.phone),
       academyId: String(input.academyId ?? ""),
       status: input.active ? "启用" : "停用",
       source: "admin_verified",

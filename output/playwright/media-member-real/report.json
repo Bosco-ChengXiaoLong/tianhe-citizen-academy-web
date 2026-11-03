@@ -1,0 +1,21 @@
+{
+  "checks": [
+    "编辑素材只PUT原ID、不新增文件，列表无停用按钮",
+    "删除使用独立确认字段成功，公开资源404",
+    "显示具体引用学院，删除409且原图保持公开可读",
+    "后台展示联系手机号及北京时间，H5只展示脱敏联系资料，不产生已验证身份"
+  ],
+  "accessibility": [
+    {
+      "name": "素材引用删除提示",
+      "violations": 0
+    },
+    {
+      "name": "学员手机号与时间列表",
+      "violations": 0
+    }
+  ],
+  "pageErrors": [],
+  "environment": "Real Java8/MySQL/Redis localhost; no business API fixtures",
+  "remoteDeployed": false
+}

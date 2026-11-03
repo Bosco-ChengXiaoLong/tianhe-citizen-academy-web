@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDateTime } from "../utils/date-time";
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { ElMessageBox } from "element-plus";
@@ -144,6 +145,7 @@ const editing = ref(false),
   draft = ref({
     displayName: "",
     studentNo: "",
+    phone: "",
     academyId: "",
     active: true,
     password: "",
@@ -208,6 +210,7 @@ function edit(row?: Record<string, any>) {
   draft.value = {
     displayName: row?.displayName ?? row?.name ?? "",
     studentNo: row?.studentNo ?? "",
+    phone: row?.phone ?? "",
     academyId: row?.academyId ?? "",
     active: !["disabled", "停用"].includes(row?.status),
     password: "",
@@ -262,6 +265,7 @@ async function saveMember() {
       growth.saveMember(editingId.value, {
         displayName: draft.value.displayName,
         studentNo: draft.value.studentNo,
+        phone: draft.value.phone,
         active: draft.value.active,
         version: draft.value.version,
         academyId: draft.value.academyId || undefined,
@@ -414,7 +418,11 @@ if (selected.value) void readCare();
         prop="studentNo"
         label="学号"
         min-width="150"
-      /><el-table-column label="来源"
+      /><el-table-column label="手机号" min-width="140"
+        ><template #default="{ row }">{{
+          row.phone || row.phoneMasked || "未填写"
+        }}</template></el-table-column
+      ><el-table-column label="来源"
         ><template #default="{ row }">{{
           row.source === "admin_verified" ? "教务核验建档" : row.source || "—"
         }}</template></el-table-column
@@ -422,6 +430,7 @@ if (selected.value) void readCare();
         prop="nextContactDate"
         label="下次跟进"
       /><el-table-column
+        :formatter="(row: Record<string, any>) => formatDateTime(row.createdAt)"
         prop="createdAt"
         label="注册时间"
         min-width="180"
@@ -490,7 +499,7 @@ if (selected.value) void readCare();
         />
         <p class="muted">
           版本 {{ care.version }} · {{ care.actorName ?? "暂无记录" }} ·
-          {{ care.updatedAt ?? "—" }}
+          {{ formatDateTime(care.updatedAt) }}
         </p>
         <template v-if="canWrite"
           ><label for="note-reason">备注修改说明</label
@@ -557,6 +566,9 @@ if (selected.value) void readCare();
             ></template
           ></el-table-column
         ><el-table-column
+          :formatter="
+            (row: Record<string, any>) => formatDateTime(row.createdAt)
+          "
           prop="createdAt"
           label="记录时间"
           min-width="180" /></el-table
@@ -590,6 +602,20 @@ if (selected.value) void readCare();
           v-model="draft.studentNo"
           maxlength="40"
           aria-label="学员学号" /></el-form-item
+      ><el-form-item
+        label="联系手机号（选填，非登录验证）"
+        prop="phone"
+        :rules="[
+          {
+            pattern: /^$|^1[3-9][0-9]{9}$/,
+            message: '请输入11位手机号',
+            trigger: 'blur',
+          },
+        ]"
+        ><el-input
+          v-model="draft.phone"
+          aria-label="联系手机号"
+          maxlength="11" /></el-form-item
       ><el-form-item label="业务学院（全局账号可留空）"
         ><el-select v-model="draft.academyId" clearable aria-label="业务学院"
           ><el-option

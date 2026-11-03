@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { formatDateTime } from "../utils/date-time";
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { growth, queryString, type Query, get } from "../services/growth";
@@ -335,11 +336,7 @@ async function exportRows() {
     </section>
     <p class="muted">
       {{ current ? "当前推荐人" : "全局" }} · 北京时间 · 更新于
-      {{
-        new Date(data.report.updatedAt).toLocaleString("zh-CN", {
-          timeZone: "Asia/Shanghai",
-        })
-      }}
+      {{ formatDateTime(data.report.updatedAt) }}
     </p>
     <div class="metrics">
       <div class="metric-card">

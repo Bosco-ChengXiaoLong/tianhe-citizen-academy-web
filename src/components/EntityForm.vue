@@ -9,7 +9,11 @@ import type { Field, Row, TableName, Value, HomeBanner } from "../types";
 import { repository } from "../services/client";
 import { isApi } from "../services/data-source";
 import { javaAdmin } from "../services/java-api";
-const props = defineProps<{ fields: Field[]; busy: boolean }>();
+const props = defineProps<{
+  fields: Field[];
+  busy: boolean;
+  immutableAsset?: boolean;
+}>();
 const model = defineModel<Row>({ required: true });
 defineEmits<{ submit: [] }>();
 const form = ref<FormInstance>();
@@ -127,7 +131,11 @@ defineExpose({ validate });
         :aria-label="field.label"
         @update:model-value="update(field.key, $event)" />
       <div v-else-if="field.kind === 'asset'">
+        <p v-if="immutableAsset" class="muted">
+          原文件保持不变，可修改名称和说明；更换图片请新建素材并调整引用。
+        </p>
         <input
+          v-else
           type="file"
           :aria-label="field.label"
           accept="image/jpeg,image/png"
