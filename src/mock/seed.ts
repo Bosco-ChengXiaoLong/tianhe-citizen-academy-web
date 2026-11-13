@@ -1,3 +1,4 @@
+/** 生成独立的后台演示数据库及样例业务状态。 */
 import type { Database, Row, TableName } from "../types";
 export const tableNames: TableName[] = [
   "academies",

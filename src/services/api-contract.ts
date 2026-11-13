@@ -1,3 +1,4 @@
+/** 后台接口契约和请求结果类型。 */
 import type {
   AdminCourseDTO,
   CourseSessionDTO,

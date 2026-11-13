@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 通过统一名称渲染端内图标资源。 */
 import icons from "../assets/icons.json";
 defineProps<{ name: string }>();
 const files = import.meta.glob("../assets/*.svg", {

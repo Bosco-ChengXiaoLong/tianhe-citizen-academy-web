@@ -234,6 +234,7 @@ try {
       .getByRole("button", { name: "停用", exact: true })
       .click();
     await page
+      .getByRole("dialog", { name: "停用", exact: true })
       .getByText("地点仍有关联发布场次，不可停用", { exact: true })
       .waitFor();
     await page

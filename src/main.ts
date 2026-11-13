@@ -1,3 +1,4 @@
+/** 应用入口，安装全局状态、导航或平台所需的运行配置。 */
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 import ElementPlus from "element-plus";

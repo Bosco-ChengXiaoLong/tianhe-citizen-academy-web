@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 管理后台布局，组合导航、页面内容及会话级状态。 */
 import { ref, onMounted, onScopeDispose } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import SideNav from "./SideNav.vue";

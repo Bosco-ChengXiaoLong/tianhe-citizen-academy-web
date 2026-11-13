@@ -1,3 +1,4 @@
+/** 选择后台 API 或演示数据实现，并统一暴露会话与调用入口。 */
 import { api } from "./http";
 import { apiIdentity } from "./api-repository";
 import { Repository } from "./repository";

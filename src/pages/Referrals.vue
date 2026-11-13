@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示邀请链路与相关运营数据。 */
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { repository } from "../services/client";

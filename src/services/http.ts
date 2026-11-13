@@ -1,3 +1,4 @@
+/** 提供端内 HTTP 适配器与会话失效通知，业务请求复用共享 Java 客户端。 */
 import axios from "axios";
 import { createJavaClient } from "../../shared/transport/java-client";
 let onSessionExpired: (() => void) | undefined;

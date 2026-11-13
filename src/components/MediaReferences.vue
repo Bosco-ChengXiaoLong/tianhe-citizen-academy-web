@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示素材的业务引用，供编辑或删除前核对。 */
 import { ref, watch } from "vue";
 import { get } from "../services/growth";
 const props = defineProps<{ id: string }>();
@@ -49,9 +50,7 @@ watch(
         {{ item.name }}
       </li>
     </ul>
-    <p v-if="!loading && !error && !total">
-      当前没有引用，删除时服务端会再次核验。
-    </p>
+    <p v-if="!loading && !error && !total">当前没有引用。</p>
     <el-pagination
       v-if="total > 10"
       v-model:current-page="page"

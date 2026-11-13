@@ -1,3 +1,4 @@
+/** 提供推荐关系的前端查询与树结构处理。 */
 import type { Row } from "../types";
 import { DomainError } from "./permissions";
 export function ancestors(members: Row[], id: string): Row[] {

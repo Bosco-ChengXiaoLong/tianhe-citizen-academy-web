@@ -1,3 +1,4 @@
+/** 将后台未保存草稿接入导航保护和离页确认。 */
 import { onScopeDispose } from "vue";
 import { onBeforeRouteLeave } from "vue-router";
 import { ElMessageBox } from "element-plus";

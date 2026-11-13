@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示后台素材预览及可用操作。 */
 import { computed, ref } from "vue";
 const props = withDefaults(
   defineProps<{ src?: string; alt?: string; compact?: boolean }>(),

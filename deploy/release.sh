@@ -58,8 +58,13 @@ for tool in node npm; do command -v "$tool" >/dev/null 2>&1 || { log "missing $t
 node -e 'const [a,b]=process.versions.node.split(".").map(Number);if(a<22||(a===22&&b<12))process.exit(1)'
 node --version
 npm --version
-COMMIT=$(git -C "$ROOT" rev-parse --short=12 HEAD 2>/dev/null || printf local)
-export FRONTEND_IMAGE="qingmu-academy-$APP:b${BUILD_NUMBER}-$COMMIT"
+COMMIT=$(git -C "$APP_DIR" rev-parse HEAD 2>/dev/null || printf local)
+if [ "$DEPLOY" = true ]; then
+    source_changes=$(git -C "$APP_DIR" status --porcelain -- . ':(exclude)output')
+    test "$COMMIT" != local && test -z "$source_changes" \
+        || { log 'release requires a clean Git checkout'; exit 2; }
+fi
+export FRONTEND_IMAGE="qingmu-academy-$APP:b${BUILD_NUMBER}-$(printf '%.12s' "$COMMIT")"
 log "image=$FRONTEND_IMAGE mode=$VITE_DATA_SOURCE deploy=$DEPLOY"
 
 # Shared host lock also protects against another Jenkins job deploying this same app.
@@ -67,6 +72,7 @@ LOCK_ROOT=${RELEASE_LOCK_ROOT:-/tmp/qingmu-academy-release}
 mkdir -p "$LOCK_ROOT"
 if mkdir "$LOCK_ROOT/$APP.lock" 2>/dev/null; then LOCK="$LOCK_ROOT/$APP.lock";
 else log 'another release holds the app lock; refusing concurrent update'; exit 1; fi
+rm -f output/release.properties
 
 if [ "$DEPLOY" = true ]; then
     command -v docker >/dev/null 2>&1 || { log 'Docker CLI is required to deploy'; exit 1; }
@@ -94,7 +100,10 @@ test -s dist/index.html
 if [ "$DEPLOY" = false ]; then log 'checks/build finished; no Docker deployment requested'; exit 0; fi
 
 STEP=image
-docker build --pull --progress=plain --build-arg "NGINX_IMAGE=${NGINX_IMAGE:-nginx:1.30-alpine}" -t "$FRONTEND_IMAGE" -f Dockerfile .
+docker build --pull --progress=plain --build-arg "NGINX_IMAGE=${NGINX_IMAGE:-nginx:1.30-alpine}" \
+    --label "org.opencontainers.image.revision=$COMMIT" \
+    --label "com.qingmu.build-number=$BUILD_NUMBER" --label "com.qingmu.data-source=$VITE_DATA_SOURCE" \
+    -t "$FRONTEND_IMAGE" -f Dockerfile .
 # Normal entrypoint performs env validation and template expansion, then nginx -t.
 docker run --rm -e "JAVA_UPSTREAM=$JAVA_UPSTREAM" "$FRONTEND_IMAGE" nginx -t
 STEP=network
@@ -108,6 +117,10 @@ compose up -d --wait --wait-timeout 90
 docker exec "$CONTAINER" sh -c 'wget -q -O /dev/null http://127.0.0.1:8080/healthz && wget -q -O /dev/null http://127.0.0.1:8080/'
 STEP=finished
 compose ps
+image_id=$(docker inspect --format '{{.Image}}' "$CONTAINER")
+mkdir -p output
+printf 'build=%s\ncommit=%s\nimage=%s\nproject=%s\ncontainer=%s\nprevious_image=%s\n' \
+    "$BUILD_NUMBER" "$COMMIT" "$image_id" "$PROJECT" "$CONTAINER" "$PREVIOUS_IMAGE" > output/release.properties
 log "release succeeded: $FRONTEND_IMAGE"
 log 'Java service readiness is independent of frontend health; verify real API readiness independently.'
 UPDATING=0

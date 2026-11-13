@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 集中学员资料、跟进记录及相关教务操作。 */
 import { formatDateTime } from "../utils/date-time";
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";

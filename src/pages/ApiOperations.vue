@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 承载需 Java 接口的教务操作与后台读模型。 */
 import { formatDateTime } from "../utils/date-time";
 import { computed, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";

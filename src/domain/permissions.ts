@@ -1,3 +1,4 @@
+/** 计算当前身份可执行的后台操作与作用范围，供界面控制使用。 */
 import type { Database, AdminAccount } from "../types";
 export function actionScopes(
   db: Database,

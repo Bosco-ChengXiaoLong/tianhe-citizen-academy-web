@@ -1,3 +1,4 @@
+/** 统一后台列表的路由筛选、分页、请求取消和 mock 查询。 */
 import { ref, computed, watch, onScopeDispose } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { repository, request } from "../services/client";
@@ -14,6 +15,7 @@ export function useList(table: () => TableName) {
   const query = computed(() => ({
     q: String(route.query.q ?? ""),
     member: String(route.query.member ?? ""),
+    course: String(route.query.course ?? ""),
     academy: String(route.query.academy ?? ""),
     status: String(route.query.status ?? ""),
     sort: String(route.query.sort ?? "name"),
@@ -35,6 +37,7 @@ export function useList(table: () => TableName) {
                 )) &&
               (!query.value.academy || r.academyId === query.value.academy) &&
               (!query.value.status || r.status === query.value.status) &&
+              (!query.value.course || r.courseId === query.value.course) &&
               (!query.value.member || r.memberId === query.value.member),
           )
           .sort(
@@ -81,6 +84,7 @@ export function useList(table: () => TableName) {
             keyword: q.q,
             academyId: q.academy,
             memberId: q.member,
+            courseId: table() === "sessions" ? q.course : undefined,
             status: q.status,
           },
           current.signal,

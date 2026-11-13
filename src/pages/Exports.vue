@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 创建、查询和下载具备权限的报表任务。 */
 import { ref } from "vue";
 import { repository } from "../services/client";
 import { useOperation } from "../composables/useOperation";

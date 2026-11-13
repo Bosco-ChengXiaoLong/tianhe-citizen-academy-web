@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 呈现后台运营统计及其筛选范围。 */
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";
 import { dictionary, eventSamples } from "../mock/events";

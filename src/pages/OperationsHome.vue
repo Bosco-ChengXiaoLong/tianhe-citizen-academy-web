@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 组装后台运营入口与关键指标。 */
 import { formatDateTime } from "../utils/date-time";
 import { ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";

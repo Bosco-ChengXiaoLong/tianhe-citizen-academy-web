@@ -1,11 +1,12 @@
 <script setup lang="ts">
+/** 按后台资源配置生成编辑字段与提交数据。 */
 import BannerEditor from "./BannerEditor.vue";
 import MediaPreview from "./MediaPreview.vue";
 
 import { ref } from "vue";
 import { IMAGE_UPLOAD } from "../../shared/contracts/protocol";
 import type { FormInstance, FormRules } from "element-plus";
-import type { Field, Row, TableName, Value, HomeBanner } from "../types";
+import type { Field, Row, Value, HomeBanner } from "../types";
 import { repository } from "../services/client";
 import { isApi } from "../services/data-source";
 import { javaAdmin } from "../services/java-api";
@@ -13,6 +14,7 @@ const props = defineProps<{
   fields: Field[];
   busy: boolean;
   immutableAsset?: boolean;
+  filterOptions?: (field: Field, row: Row) => boolean;
 }>();
 const model = defineModel<Row>({ required: true });
 defineEmits<{ submit: [] }>();
@@ -26,11 +28,18 @@ const rules: FormRules = Object.fromEntries(
       [{ required: true, message: `请填写${f.label}`, trigger: "blur" }],
     ]),
 );
-function options(table: TableName) {
+function options(field: Field) {
+  if (!field.relation) return [];
   try {
     return repository
-      .list(table)
-      .filter((r) => r.status !== "停用" && r.status !== "已归档");
+      .list(field.relation)
+      .filter(
+        (r) =>
+          r.status !== "停用" &&
+          r.status !== "已归档" &&
+          (field.relation !== "media" || r.libraryVisible !== false) &&
+          (props.filterOptions?.(field, r) ?? true),
+      );
   } catch {
     return [];
   }
@@ -83,6 +92,7 @@ defineExpose({ validate });
     :model="model"
     :rules="rules"
     label-position="top"
+    :disabled="busy"
     novalidate
     class="entity-form"
     @submit.prevent="$emit('submit')"
@@ -96,84 +106,95 @@ defineExpose({ validate });
       :prop="field.key"
       :class="{
         'entity-form__wide':
-          field.kind === 'textarea' || field.kind === 'asset',
+          field.kind === 'textarea' ||
+          field.kind === 'asset' ||
+          !!$slots[field.key],
       }"
-      ><el-select
-        v-if="field.kind === 'select'"
-        :model-value="model[field.key] as string | string[]"
-        :multiple="['academyIds', 'courseIds'].includes(field.key)"
-        :aria-label="field.label"
-        filterable
-        clearable
-        @update:model-value="update(field.key, $event)"
-        ><el-option
-          v-for="option in field.relation ? options(field.relation) : []"
-          :key="option.id"
-          :label="option.name"
-          :value="option.id" /><el-option
-          v-for="option in field.options ?? []"
-          :key="option"
-          :label="option"
-          :value="option" /></el-select
-      ><el-date-picker
-        v-else-if="field.kind === 'datetime'"
-        :model-value="String(model[field.key] ?? '')"
-        type="datetime"
-        format="YYYY-MM-DD HH:mm"
-        value-format="YYYY-MM-DD HH:mm:ss"
-        :aria-label="field.label"
-        placeholder="选择日期与时间"
-        @update:model-value="update(field.key, $event)" /><el-input-number
-        v-else-if="field.kind === 'number'"
-        :model-value="Number(model[field.key] ?? 0)"
-        :min="field.min"
-        :step="field.key === 'credits' ? 0.5 : 1"
-        :aria-label="field.label"
-        @update:model-value="update(field.key, $event)" />
-      <div v-else-if="field.kind === 'asset'">
-        <p v-if="immutableAsset" class="muted">
-          原文件保持不变，可修改名称和说明；更换图片请新建素材并调整引用。
-        </p>
-        <input
-          v-else
-          type="file"
+      ><slot :name="field.key" :field="field"
+        ><el-select
+          v-if="field.kind === 'select'"
+          :model-value="model[field.key] as string | string[]"
+          :multiple="['academyIds', 'courseIds'].includes(field.key)"
           :aria-label="field.label"
-          accept="image/jpeg,image/png"
-          @change="file($event, field.key)"
-        />
-        <p class="muted">
-          {{
-            isApi
-              ? "图片将上传到学苑服务器，公开可访问。"
-              : "仅保存本地演示图片，不上传真实服务器。"
-          }}
-        </p>
-        <MediaPreview
-          v-if="model[field.key]"
-          :src="String(model[field.key])"
-          alt="所选素材预览"
-        />
-        <p v-if="fileError" role="alert" class="error-text">{{ fileError }}</p>
-      </div>
-      <el-input
-        v-else
-        :model-value="String(model[field.key] ?? '')"
-        :type="
-          field.kind === 'textarea'
-            ? 'textarea'
-            : field.kind === 'password'
-              ? 'password'
-              : 'text'
-        "
-        :show-password="field.kind === 'password'"
-        :autocomplete="field.kind === 'password' ? 'new-password' : undefined"
-        :autosize="
-          field.kind === 'textarea' ? { minRows: 3, maxRows: 12 } : undefined
-        "
-        resize="none"
-        :aria-label="field.label"
-        :maxlength="field.kind === 'textarea' ? 2000 : 200"
-        @update:model-value="update(field.key, $event)" /></el-form-item
+          filterable
+          clearable
+          @update:model-value="update(field.key, $event)"
+          ><el-option
+            v-for="option in options(field)"
+            :key="option.id"
+            :label="option.name"
+            :value="option.id" /><el-option
+            v-for="option in field.options ?? []"
+            :key="option"
+            :label="option"
+            :value="option" /></el-select
+        ><el-date-picker
+          v-else-if="field.kind === 'datetime'"
+          :model-value="String(model[field.key] ?? '')"
+          type="datetime"
+          format="YYYY-MM-DD HH:mm"
+          value-format="YYYY-MM-DD HH:mm:ss"
+          :aria-label="field.label"
+          placeholder="选择日期与时间"
+          @update:model-value="update(field.key, $event)" /><el-input-number
+          v-else-if="field.kind === 'number'"
+          :model-value="Number(model[field.key] ?? 0)"
+          :min="field.min"
+          :step="field.key === 'credits' ? 0.5 : 1"
+          :aria-label="field.label"
+          @update:model-value="update(field.key, $event)" />
+        <div v-else-if="field.kind === 'asset'">
+          <p v-if="immutableAsset" class="muted">
+            原文件保持不变，可修改名称和说明；更换图片请新建素材并调整引用。
+          </p>
+          <input
+            v-else
+            type="file"
+            :aria-label="field.label"
+            accept="image/jpeg,image/png"
+            @change="file($event, field.key)"
+          />
+          <p class="muted">
+            {{
+              isApi
+                ? "图片将上传到学苑服务器，公开可访问。"
+                : "仅保存本地演示图片，不上传真实服务器。"
+            }}
+          </p>
+          <MediaPreview
+            v-if="model[field.key]"
+            :src="String(model[field.key])"
+            alt="所选素材预览"
+          />
+          <p v-if="fileError" role="alert" class="error-text">
+            {{ fileError }}
+          </p>
+        </div>
+        <el-switch
+          v-else-if="field.kind === 'switch'"
+          :model-value="model[field.key] !== false"
+          :aria-label="field.label"
+          @update:model-value="update(field.key, $event)" /><el-input
+          v-else
+          :model-value="String(model[field.key] ?? '')"
+          :type="
+            field.kind === 'textarea'
+              ? 'textarea'
+              : field.kind === 'password'
+                ? 'password'
+                : 'text'
+          "
+          :show-password="field.kind === 'password'"
+          :autocomplete="field.kind === 'password' ? 'new-password' : undefined"
+          :autosize="
+            field.kind === 'textarea' ? { minRows: 3, maxRows: 12 } : undefined
+          "
+          resize="none"
+          :aria-label="field.label"
+          :maxlength="field.kind === 'textarea' ? 2000 : 200"
+          @update:model-value="
+            update(field.key, $event)
+          " /></slot></el-form-item
     ><slot
   /></el-form>
 </template>

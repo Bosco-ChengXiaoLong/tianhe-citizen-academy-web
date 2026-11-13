@@ -19,5 +19,6 @@ pipeline {
     }
     post {
         always { archiveArtifacts artifacts: 'output/**/*.json,output/**/*.png', allowEmptyArchive: true }
+        success { archiveArtifacts artifacts: 'output/release.properties', allowEmptyArchive: true, fingerprint: true }
     }
 }

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 统一后台页面标题、说明和操作区结构。 */
 defineProps<{ title: string; description: string }>();
 </script>
 <template>

@@ -1,3 +1,4 @@
+/** 集中定义后台功能入口、权限需求及导航分组。 */
 import type { ModuleDefinition, Field } from "../types";
 import { isApi } from "../services/data-source";
 const academy: Field = {
@@ -45,9 +46,8 @@ export const modules: ModuleDefinition[] = [
       name,
       academy,
       relation("categoryId", "课程分类", "categories"),
-      relation("teacherId", "授课老师", "teachers"),
-      relation("venueId", "授课地点", "venues"),
-      relation("coverId", "封面素材", "media"),
+      { key: "teacherId", label: "课程讲师" },
+      { key: "coverId", label: "课程封面" },
       { ...description, required: true },
     ],
   },
@@ -118,8 +118,8 @@ export const modules: ModuleDefinition[] = [
     icon: "user",
     table: "teachers",
     permission: "teacher:read",
-    description: "教师资料和课程关联。",
-    fields: [name, academy, description],
+    description: "维护可跨学院选用的讲师档案。",
+    fields: [name, description],
   },
   {
     key: "categories",
@@ -142,12 +142,12 @@ export const modules: ModuleDefinition[] = [
     icon: "book",
     table: "media",
     permission: "media:read",
-    description: "校验图片类型及大小，演示素材仅保存本地预览资料。",
+    description: "维护课程图片、共享状态和引用位置。",
     fields: [
       name,
-      academy,
       { key: "url", label: "图片", kind: "asset", required: true },
       description,
+      { key: "libraryVisible", label: "允许其他内容选用", kind: "switch" },
     ],
   },
   {

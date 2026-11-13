@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 查看推荐人贡献、推荐关系与历史事实。 */
 import { formatDateTime } from "../utils/date-time";
 import { ref, watch, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";

@@ -1,3 +1,4 @@
+/** 后台增长与学员跟进的查询和写入适配，区分真实接口与演示数据。 */
 import { api } from "./http";
 import { isApi } from "./data-source";
 import { repository } from "./client";

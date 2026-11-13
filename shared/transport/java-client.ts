@@ -1,3 +1,4 @@
+/** 跨端 Java 客户端，集中处理响应包、令牌刷新、请求取消及写入幂等标识。 */
 import { uuid } from "../utils/uuid";
 import type { ApiEnvelope, TokenBundle } from "../contracts/protocol";
 export interface HttpRequest {
@@ -9,6 +10,7 @@ export interface HttpRequest {
   responseType?: "json" | "blob";
 }
 export type HttpPort = (request: HttpRequest) => Promise<{ data: unknown }>;
+/** 保留 Java 业务错误码、HTTP 状态和请求标识，便于页面处理及排查。 */
 export class JavaApiError extends Error {
   constructor(
     public code: string,
@@ -20,6 +22,7 @@ export class JavaApiError extends Error {
     this.name = "JavaApiError";
   }
 }
+/** 通过注入 HTTP 和存储适配器，在浏览器与小程序中复用相同的会话协议。 */
 export function createJavaClient(
   port: HttpPort,
   options: {
@@ -72,6 +75,7 @@ export function createJavaClient(
       );
     return envelope.data;
   };
+  /** 同一客户端的并发请求共享一次刷新操作，避免并行轮换同一刷新令牌。 */
   let refreshing: Promise<void> | undefined;
   const refresh = () => {
     if (refreshing) return refreshing;
@@ -114,7 +118,9 @@ export function createJavaClient(
       e?.response?.data?.requestId,
     );
   }
-  const pendingWrites=new Map<string,string>();
+  /** 保存结果未确认写入的请求标识，相同请求重试时继续使用该标识。 */
+  const pendingWrites = new Map<string, string>();
+  /** 发送业务请求并处理鉴权续期。提交结果未知时保留请求标识供页面核对。 */
   async function request<T>(
     method: string,
     url: string,
@@ -136,9 +142,19 @@ export function createJavaClient(
       await refresh().catch((error) => {
         throw failure(error);
       });
-    const fingerprint=!["GET","HEAD"].includes(method)&&!(typeof FormData!=="undefined"&&data instanceof FormData)?JSON.stringify([method,url,data]):undefined;
-    const automaticId=fingerprint?(pendingWrites.get(fingerprint)??uuid()):uuid();
-    if(fingerprint&&!settings.requestId){if(pendingWrites.size>=100)pendingWrites.delete(pendingWrites.keys().next().value!);pendingWrites.set(fingerprint,automaticId);}
+    const fingerprint =
+      !["GET", "HEAD"].includes(method) &&
+      !(typeof FormData !== "undefined" && data instanceof FormData)
+        ? JSON.stringify([method, url, data])
+        : undefined;
+    const automaticId = fingerprint
+      ? (pendingWrites.get(fingerprint) ?? uuid())
+      : uuid();
+    if (fingerprint && !settings.requestId) {
+      if (pendingWrites.size >= 100)
+        pendingWrites.delete(pendingWrites.keys().next().value!);
+      pendingWrites.set(fingerprint, automaticId);
+    }
     const headers: Record<string, string> = {};
     if (!["GET", "HEAD"].includes(method))
       headers["Idempotency-Key"] = settings.requestId ?? automaticId;
@@ -170,12 +186,19 @@ export function createJavaClient(
           response = await send();
         } else throw e;
       }
-      if(fingerprint)pendingWrites.delete(fingerprint);
+      if (fingerprint) pendingWrites.delete(fingerprint);
       return settings.blob ? (response.data as T) : unwrap<T>(response.data);
     } catch (e) {
       let error = failure(e);
-      if(fingerprint&&error.status)pendingWrites.delete(fingerprint);
-      if(!["GET","HEAD"].includes(method)&&error.status===0){error=new JavaApiError("RESULT_UNKNOWN","提交结果尚未确认，请核对记录后重试",0,headers["Idempotency-Key"]);}
+      if (fingerprint && error.status) pendingWrites.delete(fingerprint);
+      if (!["GET", "HEAD"].includes(method) && error.status === 0) {
+        error = new JavaApiError(
+          "RESULT_UNKNOWN",
+          "提交结果尚未确认，请核对记录后重试",
+          0,
+          headers["Idempotency-Key"]
+        );
+      }
       if (error.status === 401) {
         clear();
         options.onExpired?.();

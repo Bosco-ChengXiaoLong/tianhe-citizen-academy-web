@@ -1,3 +1,4 @@
+/** 将业务动作映射到稳定的 Java API 路径，收拢请求选项和响应类型。 */
 import { uuid } from "../../shared/utils/uuid";
 import { api } from "./http";
 import type {
@@ -62,6 +63,21 @@ export const javaAdmin = {
     form.append("reason", reason);
     return api.request<MediaDTO>("POST", "/media", form, auth);
   },
+  uploadCourseCover: (file: File, academyId: string, requestId: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    form.append("academyId", academyId);
+    form.append("reason", "课程编辑上传封面");
+    return api.request<MediaDTO>("POST", "/course-media", form, {
+      ...auth,
+      requestId,
+    });
+  },
+  courseCoverPreview: (id: string) =>
+    api.request<Blob>("GET", `/course-media/${id}`, undefined, {
+      ...auth,
+      blob: true,
+    }),
   download: (id: string) =>
     api.request<Blob>("GET", `/exports/${id}/download`, undefined, {
       ...auth,

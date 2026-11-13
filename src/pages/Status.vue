@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 为后台访问受限或页面异常提供处理入口。 */
 import { useRoute } from "vue-router";
 const route = useRoute();
 </script>

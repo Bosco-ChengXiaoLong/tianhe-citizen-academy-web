@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示后台审计记录及相关筛选条件。 */
 import { computed, ref } from "vue";
 import { repository } from "../services/client";
 import PageHeading from "../components/PageHeading.vue";

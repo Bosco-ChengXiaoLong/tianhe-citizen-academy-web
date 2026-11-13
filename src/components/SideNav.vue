@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 按模块权限组织后台侧边导航。 */
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { modules } from "../config/modules";

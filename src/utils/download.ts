@@ -1,3 +1,4 @@
+/** 在浏览器保存后台导出内容并管理临时下载地址。 */
 import type { Row } from "../types";
 export function csvCell(value: unknown) {
   let text = String(value ?? "");

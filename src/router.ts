@@ -1,3 +1,4 @@
+/** 定义后台路由、会话校验和功能模块访问边界。 */
 import {
   createRouter,
   createWebHashHistory,
@@ -12,6 +13,7 @@ declare module "vue-router" {
     module?: string;
     permission?: string;
     public?: boolean;
+    courseEditor?: boolean;
   }
 }
 import { isApi } from "./services/data-source";
@@ -61,6 +63,7 @@ const routes: RouteRecordRaw[] = [
           title: "新建课程",
           module: "courses",
           permission: "course:write",
+          courseEditor: true,
         },
       },
       {
@@ -70,6 +73,7 @@ const routes: RouteRecordRaw[] = [
           title: "编辑课程",
           module: "courses",
           permission: "course:write",
+          courseEditor: true,
         },
       },
       {
@@ -112,7 +116,7 @@ router.beforeEach(async (to) => {
     if (to.meta.public) return safeReturn(to.query.redirect);
     if (to.meta.permission && !apiRepository.can(to.meta.permission))
       return "/403";
-    if (!["/403"].includes(to.path))
+    if (to.path !== "/403" && !to.meta.courseEditor)
       await apiRepository.references(
         !["overview", "members", "referrals", "contributions"].includes(
           String(to.meta.module),

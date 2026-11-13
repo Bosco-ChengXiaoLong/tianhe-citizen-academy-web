@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 可视化邀请到报名等业务阶段的统计数据。 */
 import { computed } from "vue";
 import type { GrowthReport } from "../../shared/contracts/growth";
 const props = defineProps<{ report: GrowthReport }>();

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 编辑轮播内容、排序和跳转目标，并由上层提交配置。 */
 import { repository } from "../services/client";
 import type { HomeBanner } from "../types";
 const externalExample = "/courses 或 https://mp.weixin.qq.com/...";
@@ -14,7 +15,9 @@ function media() {
   try {
     return repository
       .list("media")
-      .filter((m) => m.status !== "已删除" && m.url);
+      .filter(
+        (m) => m.status === "启用" && m.libraryVisible !== false && m.url,
+      );
   } catch {
     return [];
   }

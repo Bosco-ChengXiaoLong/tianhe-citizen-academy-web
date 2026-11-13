@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 维护角色可执行的操作与学院授权范围。 */
 import { uuid } from "../utils/uuid";
 
 import { useDraftGuard } from "../composables/useDraftGuard";

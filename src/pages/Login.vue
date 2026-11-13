@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 处理登录方式选择、协议同意及原任务回跳。 */
 import { ref } from "vue";
 import { modules } from "../config/modules";
 import { repository } from "../services/client";

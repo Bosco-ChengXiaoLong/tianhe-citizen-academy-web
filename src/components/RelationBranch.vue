@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示推荐关系树的单个分支及展开状态。 */
 import { ref } from "vue";
 import { growth } from "../services/growth";
 defineOptions({ name: "RelationBranch" });

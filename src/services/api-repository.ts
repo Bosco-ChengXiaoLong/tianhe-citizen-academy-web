@@ -1,3 +1,4 @@
+/** 将后台表格、表单与状态操作映射到 Java API。 */
 import { reactive } from "vue";
 import { api } from "./http";
 import { uuid } from "../../shared/utils/uuid";
@@ -59,6 +60,7 @@ export const labels: Record<string, string> = {
   failed: "失败",
   sent: "已发送",
 };
+/** 将服务端字段和状态转换为后台表格与表单约定。 */
 export function viewRow(raw: Record<string, unknown>): Row {
   const r = { ...raw } as unknown as Row;
   r.id = String(raw.id ?? raw.publicId ?? raw.configKey ?? "");
@@ -131,6 +133,20 @@ const database = reactive<Database>({
   attribution: [],
 });
 export class ApiRepository {
+  async course(id: string) {
+    const raw = await api.request<Record<string, unknown>>(
+      "GET",
+      `/courses/${id}`,
+      undefined,
+      { authenticated: true },
+    );
+    const row = viewRow(raw);
+    delete row.firstSessionDraft;
+    if (raw.firstSessionDraft)
+      row.firstSessionDraftJson = JSON.stringify(raw.firstSessionDraft);
+    return row;
+  }
+
   read() {
     return database;
   }
@@ -185,6 +201,7 @@ export class ApiRepository {
     ];
     return identity;
   }
+  /** 按表格类型选择查询入口，并将分页条件传给 Java 服务。 */
   async page(
     table: TableName,
     query: Record<string, string | number | undefined> = {},
@@ -269,6 +286,7 @@ export class ApiRepository {
       database.tables[t] = all;
     }
   }
+  /** 按资源类型组装写入契约，传递并发版本和操作原因。 */
   async save(table: TableName, input: Row) {
     const create =
       input.editingExisting !== true && Number(input.version) === 0;
@@ -284,7 +302,7 @@ export class ApiRepository {
       const media = database.tables.media.find((m) => m.id === input.coverId);
       body = courseDraft(
         input,
-        String(media?.url ?? input.coverUrl ?? ""),
+        String(input.coverUrl || media?.url || ""),
         reason,
       );
     } else if (table === "sessions")
@@ -312,6 +330,7 @@ export class ApiRepository {
         name: input.name,
         description: input.description ?? "",
         enabled: input.status !== "停用",
+        libraryVisible: input.libraryVisible !== false,
         version: input.version,
         reason,
       };
@@ -350,9 +369,18 @@ export class ApiRepository {
       body,
       { authenticated: true },
     );
-    await this.references();
+    if (table === "teachers") {
+      const saved = viewRow(out);
+      database.tables.teachers = [
+        ...database.tables.teachers.filter((r) => r.id !== saved.id),
+        saved,
+      ];
+      return saved;
+    }
+    if (table !== "courses") await this.references();
     return viewRow(out);
   }
+  /** 将后台状态操作映射为对应的业务命令。 */
   async transition(
     table: TableName,
     id: string,

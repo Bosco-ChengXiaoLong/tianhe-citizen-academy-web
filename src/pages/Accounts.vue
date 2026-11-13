@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 维护后台账号及账号关联角色。 */
 import { uuid } from "../utils/uuid";
 
 import { useDraftGuard } from "../composables/useDraftGuard";

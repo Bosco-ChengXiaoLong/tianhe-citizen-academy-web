@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示附件列表和预览入口，使用调用方提供的已授权文件信息。 */
 import { onScopeDispose, ref, watch } from "vue";
 import { api } from "../services/http";
 import MediaPreview from "./MediaPreview.vue";

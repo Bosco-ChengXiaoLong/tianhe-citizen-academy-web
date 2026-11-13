@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 展示后台工作概况及常用入口。 */
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { repository } from "../services/client";

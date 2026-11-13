@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 收集管理操作原因，向上层返回确认结果。 */
 import { ref, watch } from "vue";
 const props = defineProps<{
   open: boolean;
@@ -33,6 +34,7 @@ function submit() {
     width="min(560px, calc(100% - 32px))"
     :close-on-click-modal="false"
     :close-on-press-escape="!busy"
+    :show-close="!busy"
     @close="!busy && emit('close')"
     ><p>{{ description }}</p>
     <slot />

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 按页面提供的统计序列呈现趋势。 */
 import { ref, watch, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { init, use, type EChartsType } from "echarts/core";
 import { LineChart } from "echarts/charts";

@@ -196,21 +196,22 @@ try {
   await d.getByText("学院：引用学院·" + suffix, { exact: true }).waitFor();
   await d
     .getByRole("textbox", { name: "操作原因", exact: true })
-    .fill("应被引用保护拒绝");
-  const blocked = admin.waitForResponse(
+    .fill("删除素材并保留已有引用");
+  const removed = admin.waitForResponse(
     (r) =>
       r.url().endsWith("/media/" + used.id + "/delete") &&
       r.request().method() === "POST",
   );
   await d.getByRole("button", { name: "删除", exact: true }).click();
-  assert.equal((await blocked).status(), 409);
-  await d.getByText(/素材不能删除或停用/).waitFor();
+  assert.equal((await removed).status(), 200);
+  await d.waitFor({ state: "hidden" });
+  await row.waitFor({ state: "hidden" });
   assert.equal((await api.get("/api/media/" + used.id)).status(), 200);
   await admin.screenshot({
-    path: fileURLToPath(new URL("reference-block.png", out)),
+    path: fileURLToPath(new URL("reference-retained.png", out)),
     fullPage: true,
   });
-  checks.push("显示具体引用学院，删除409且原图保持公开可读");
+  checks.push("显示具体引用学院，删除后移出素材库且原图保持公开可读");
   await scan(admin, "素材引用删除提示");
   await h5.goto("http://127.0.0.1:5205/api/media/" + used.id);
   await h5.locator("img").evaluate((img) => img.decode());

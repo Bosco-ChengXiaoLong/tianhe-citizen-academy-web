@@ -1,3 +1,4 @@
+/** 后台本地演示数据库，提供与真实界面流程相对应的资源操作。 */
 import { validBannerTarget } from "../../shared/contracts/banner-target";
 import { uuid } from "../utils/uuid";
 import { clone } from "../utils/clone";
@@ -117,7 +118,9 @@ export class Repository {
     this.authorize(db, action);
     const scope = actionScopes(db, a, action);
     return db.tables[table].filter(
-      (r) => scope === "*" || this.ids(r).some((id) => scope.includes(id)),
+      (r) =>
+        r.status !== "已删除" &&
+        (scope === "*" || this.ids(r).some((id) => scope.includes(id))),
     );
   }
   private audit(
@@ -174,7 +177,7 @@ export class Repository {
     }
     if (!row.name.trim()) throw new DomainError("VALIDATION", "请填写名称");
     if (
-      table !== "academies" &&
+      !["academies", "teachers", "media"].includes(table) &&
       !db.tables.academies.some(
         (a) => a.id === row.academyId && a.status !== "停用",
       )
@@ -206,37 +209,30 @@ export class Repository {
     )
       throw new DomainError("INVALID_RULE", "学分门槛必须是非负数");
     if (table === "courses") {
-      for (const [key, target] of [
-        ["teacherId", "teachers"],
-        ["categoryId", "categories"],
-        ["venueId", "venues"],
-        ["coverId", "media"],
-      ] as const) {
-        if (
-          !db.tables[target].some(
-            (r) => r.id === row[key] && r.status !== "停用",
-          )
+      const manual = row.teacherSource === "course_only";
+      if (
+        manual
+          ? !String(row.teacherName ?? "").trim()
+          : !db.tables.teachers.some(
+              (r) => r.id === row.teacherId && r.status !== "停用",
+            )
+      )
+        throw new DomainError("VALIDATION", "请选择或填写一位讲师");
+      if (
+        !db.tables.categories.some(
+          (r) => r.id === row.categoryId && r.status !== "停用",
         )
-          throw new DomainError(
-            "VALIDATION",
-            "请完整关联有效教师、分类、地点与封面",
-          );
-      }
-      for (const [key, target] of [
-        ["teacherId", "teachers"],
-        ["categoryId", "categories"],
-        ["coverId", "media"],
-      ] as const) {
-        if (
-          !db.tables[target].some(
-            (r) => r.id === row[key] && r.academyId === row.academyId,
-          )
-        )
-          throw new DomainError(
-            "ACADEMY_MISMATCH",
-            "教师、分类和封面必须在当前学院授权范围内",
-          );
-      }
+      )
+        throw new DomainError("VALIDATION", "请选择有效分类");
+      const cover = db.tables.media.find((r) => r.id === row.coverId);
+      if (!row.coverUrl && !cover)
+        throw new DomainError("VALIDATION", "请选择课程封面");
+      if (
+        cover &&
+        row.coverId !== old?.coverId &&
+        (cover.status === "已删除" || cover.libraryVisible === false)
+      )
+        throw new DomainError("VALIDATION", "素材不可用");
       const venue = db.tables.venues.find((v) => v.id === row.venueId);
       if (venue && !this.ids(venue).includes(row.academyId))
         throw new DomainError("ACADEMY_MISMATCH", "地点未关联当前学院");
@@ -250,6 +246,15 @@ export class Repository {
         throw new DomainError("VALIDATION", "请关联已发布课程和有效教室");
       if (course.academyId !== row.academyId)
         throw new DomainError("VALIDATION", "课程与场次必须属于同一学院");
+      if (
+        !db.tables.teachers.some(
+          (r) => r.id === row.teacherId && r.status !== "停用",
+        )
+      )
+        throw new DomainError("VALIDATION", "请选择正式讲师");
+      const venue = db.tables.venues.find((v) => v.id === room.venueId);
+      if (!venue || !this.ids(venue).includes(row.academyId))
+        throw new DomainError("ACADEMY_MISMATCH", "地点未关联当前学院");
       const start = Date.parse(
           String(row.startAt).replace(" ", "T") + "+08:00",
         ),
@@ -336,6 +341,10 @@ export class Repository {
     delete next.editingExisting;
     if (old) next.status = old.status;
     this.validate(db, table, next, old);
+    if (table === "courses" && !next.coverUrl) {
+      const cover = db.tables.media.find((r) => r.id === next.coverId);
+      if (cover) next.coverUrl = cover.url;
+    }
     next.version = (old?.version ?? 0) + 1;
     if (
       old &&
@@ -376,6 +385,39 @@ export class Repository {
     this.commit(db);
     return next;
   }
+  publishFirstSession(
+    courseId: string,
+    version: number,
+    reason: string,
+    session: Row,
+  ) {
+    const db = this.read();
+    const course = db.tables.courses.find((r) => r.id === courseId);
+    if (!course || course.version !== version)
+      throw new DomainError("VERSION_CONFLICT", "课程已更新，请重新加载");
+    this.authorize(db, "course:publish", [course.academyId]);
+    this.authorize(db, "session:write", [course.academyId]);
+    if (db.tables.sessions.some((r) => r.courseId === courseId))
+      throw new DomainError("FIRST_SESSION_EXISTS", "已有场次，请进入场次维护");
+    const before = clone(course);
+    this.validate(db, "courses", course, course);
+    course.status = "已发布";
+    course.publishedVersion = ++course.version;
+    delete course.firstSessionDraftJson;
+    course.publishedSnapshot = JSON.stringify(course);
+    const created = {
+      ...session,
+      courseId,
+      academyId: course.academyId,
+      status: "已发布",
+      version: 1,
+    };
+    this.validate(db, "sessions", created);
+    db.tables.sessions.unshift(created);
+    this.audit(db, "已发布", "courses", courseId, reason, before, course);
+    this.audit(db, "新建", "sessions", created.id, reason, null, created);
+    this.commit(db);
+  }
   transition(
     table: TableName,
     id: string,
@@ -412,28 +454,16 @@ export class Repository {
     if (!statuses[table]?.includes(status))
       throw new DomainError("INVALID_STATE", "该状态变更不被允许");
     if (table === "media") {
-      const urls = [row.id, String(row.url ?? "")].filter(Boolean);
-      const uses = Object.entries(db.tables)
-        .filter(([t]) => t !== "media")
-        .flatMap(([t, records]) =>
-          records
-            .filter((r) => urls.some((u) => JSON.stringify(r).includes(u)))
-            .map((r) => `${t}：${r.name}`),
-        );
-      if (uses.length)
-        throw new DomainError(
-          "MEDIA_IN_USE",
-          "素材不能删除，正在被以下位置使用：" + uses.join("；"),
-        );
       const before = clone(row);
-      db.tables.media = db.tables.media.filter((r) => r.id !== id);
-      this.audit(db, "删除", "media", id, reason, before, null);
+      row.status = "已删除";
+      row.version++;
+      this.audit(db, "删除", "media", id, reason, before, row);
       this.commit(db);
       return;
     }
     const before = clone(row);
     if (table === "courses" && status === "已发布") {
-      this.validate(db, table, row);
+      this.validate(db, table, row, row);
       row.publishedVersion = row.version + 1;
       row.publishedSnapshot = JSON.stringify(row);
     }

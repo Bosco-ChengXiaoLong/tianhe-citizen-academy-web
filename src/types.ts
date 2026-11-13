@@ -1,3 +1,4 @@
+/** 汇总后台页面实体、筛选条件和权限相关类型。 */
 export interface HomeBanner {
   title: string;
   imageUrl: string;
@@ -106,6 +107,7 @@ export interface Field {
     | "select"
     | "datetime"
     | "asset"
+    | "switch"
     | "password";
   required?: boolean;
   options?: string[];

@@ -1,3 +1,4 @@
+/** 维护后台会话和身份状态，按当前数据模式调用相应认证入口。 */
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { repository, readSession, request } from "../services/client";

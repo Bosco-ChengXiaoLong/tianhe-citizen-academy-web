@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 应用根组件，提供各页面共用的布局或平台样式。 */
 import { ref, onUnmounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { repository, readSession } from "./services/client";

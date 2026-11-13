@@ -1,3 +1,4 @@
+/** 提供后台 mock 统计事件数据。 */
 import dictionary from "./event-dictionary.json";
 export { dictionary };
 export const eventSamples = Array.from({ length: 32 }, (_, i) => ({

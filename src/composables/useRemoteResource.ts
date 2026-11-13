@@ -1,3 +1,4 @@
+/** 按业务键加载可取消资源，隔离前后两次请求的显示状态。 */
 import { ref, shallowRef, watch, onBeforeUnmount } from "vue";
 export function useRemoteResource<T>(
   key: () => unknown,

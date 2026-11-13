@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 根据后台功能模块组织资源列表、筛选、编辑和状态操作。 */
 import { isApi } from "../services/data-source";
 import { uuid } from "../utils/uuid";
 
@@ -156,7 +157,9 @@ function edit(record?: Row) {
         status: ["sessions", "messages", "configs", "levels"].includes(table())
           ? "草稿"
           : "启用",
-        academyId: academies.value[0]?.id ?? "humanities",
+        academyId: ["teachers", "media"].includes(table())
+          ? ""
+          : (academies.value[0]?.id ?? "humanities"),
       });
   draft.value.editingExisting = !!record;
   if (table() === "venues" && !record)
@@ -207,7 +210,10 @@ function ask(record: Row, status: string) {
             : status === "回滚"
               ? "回滚配置"
               : status,
-    description: `${record.name}：本操作会更新业务状态并保留审计记录。`,
+    description:
+      table() === "media" && status === "删除"
+        ? `删除「${record.name}」后，其他内容无法再选用这张图片，已有引用仍可显示。`
+        : `${record.name}：本操作会更新业务状态并保留审计记录。`,
     record,
     status,
   };

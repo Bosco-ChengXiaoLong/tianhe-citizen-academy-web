@@ -1,4 +1,5 @@
 <script setup lang="ts">
+/** 为推荐关系更正选择候选的直属推荐人。 */
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { get } from "../services/growth";
 import { isApi } from "../services/data-source";
