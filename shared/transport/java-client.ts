@@ -17,6 +17,7 @@ export class JavaApiError extends Error {
     message: string,
     public status = 0,
     public requestId?: string,
+    public retryAfter?: number,
   ) {
     super(message);
     this.name = "JavaApiError";
@@ -101,7 +102,7 @@ export function createJavaClient(
   function failure(error: unknown): JavaApiError {
     if (error instanceof JavaApiError) return error;
     const e = error as {
-      response?: { status?: number; data?: Partial<ApiEnvelope<never>> };
+      response?: { status?: number; data?: Partial<ApiEnvelope<{ retryAfter?: number }>> };
       code?: string;
     };
     const status = e?.response?.status ?? 0;
@@ -116,6 +117,7 @@ export function createJavaClient(
         (status === 401 ? "登录已过期，请重新登录" : "请求未完成，请稍后重试"),
       status,
       e?.response?.data?.requestId,
+      e?.response?.data?.data?.retryAfter,
     );
   }
   /** 保存结果未确认写入的请求标识，相同请求重试时继续使用该标识。 */
